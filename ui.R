@@ -1,0 +1,222 @@
+library(shiny)
+library(ggplot2)
+library(shinyBS)
+library(shinyjs)
+library(V8)
+library(shinydashboard)
+library(shinyWidgets)
+
+rm(list = ls())
+shinyUI(dashboardPage(skin="yellow",
+                      
+                      dashboardHeader(title = "Correlation Guessing Game"),
+                      dashboardSidebar(
+                        sidebarMenu(
+                          id="tabs",
+                          menuItem("Overview", tabName = "intro",icon=icon("dashboard")),
+                          menuItem("Game", tabName = "game",icon=icon("gamepad"))
+                          #menuItem("Score Board", tabName = "leader",icon=icon("dashboard"))
+                        )
+                      ),
+                      dashboardBody(
+                        tags$head( 
+                          tags$link(rel = "stylesheet", type = "text/css", href = "Feature.css"),
+                          tags$style(HTML(
+                            '.popover-title{
+                            color: black;
+                            background-color: orange }'
+                          )),
+                          
+                          #Change the style of progress bar
+                          tags$style(
+                            HTML(".shiny-notification {
+                                 height: 100px;
+                                 width: 800px;
+                                 position:fixed;
+                                 top: calc(50% - 50px);;
+                                 left: calc(50% - 400px);;
+                                 }
+                                 "
+                            )
+                            )),
+                        tabItems(
+                          # First tab content
+                          tabItem(tabName = "intro",
+                                  
+                                  #' fluidRow(
+                                  #'    the color for slider bar
+                                  tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {background: orange}")),
+                                  
+                                    tags$a(href='http://stat.psu.edu/',   tags$img(src='logo.png', align = "left", width = 180)),
+                                    br(),
+                                    br(),
+                                    br(),
+                                    h3(strong("About:")),
+                                    
+                                    h4("This game is designed to help you better understand the numerical value of correlations for scatterplots with or without outliers."),
+                                    
+                                    h3(strong("Instructions:")),
+                                    h4(tags$li("Select the difficulty level before the game or any time you submit an answer.")),
+                                    h4(tags$li("Show the regression line if you want.")),
+                                    h4(tags$li("When you are ready, make a guess using the slider.")),
+                                    h4(tags$li("Number of hearts shows how many lives you have remaining.")),
+                                    h4(tags$li("The game is over when you lose all hearts.")),
+                                    h4(tags$li("Click Finish to stop the game without penalty.")),
+                                    h4(tags$li("Lose 25 points if you lose your last life.")),
+                                    br(),
+                                    div(style = "text-align: center" ,bsButton("start", "GO", icon("bolt"),size = "large", style = "warning")),
+
+                                    h3(strong("Acknowledgements:")),
+                                    h4("This app was developed and coded by Sitong Liu and futher updated by Zhiliang Zhang and Jiajun Gao.",
+                                       "This app is based on extending the idea in the Rossman/Chance applet at http://www.rossmanchance.com/applets/GuessCorrelation.html.",
+                                       " Special thanks to Caihui Xiao and Yuxin Zhang for help on some programming issues."),
+                                    br()
+                                    
+                                  ),
+                          tabItem(tabName = "game",
+                                  
+                                  fluidRow(
+                                    column(3,
+                                           wellPanel(
+                                             style = "background-color: #EAF2F8",
+                                             div(style="display: inline-block;vertical-align:top;",
+                                                 tags$a(href='https://shinyapps.science.psu.edu/',tags$img(src='homebut.PNG', width = 19))
+                                             ),
+                                             div(style="display: inline-block;vertical-align:top;",
+                                                 circleButton("info",icon = icon("info"), status = "myClass",size = "xs")
+                                             ),
+                                             selectInput("difficulty",label=h3("Mode"),
+                                                         
+                                                         choices=list("Without Outlier","With Outlier", "Random")
+                                             ),
+                                             checkboxGroupInput(inputId="options", label=h3("Show:"),choices=list("Show Regression Line")),
+                                             h3("Making your guess: "),
+                                             sliderInput("slider",label="The correlation of the plot is",min=-1,max=1,step=0.01, value=0),
+                                             br(),
+                                             div(style = "text-align:center",
+                                                 bsButton("newplot",label = "Generate New Plot",icon("arrow- circle-right"), size = "large", style = "warning")),
+                                             br(),
+                                             div(style = "text-align:center", uiOutput("sub")), # make the button disappear once the game is over
+                                             br(),
+                                             
+                                             div(style = "text-align:center",
+                                                 p(textOutput("status1"),
+                                                   tags$head(tags$style("#status1{color: #FA8072;
+                                                                        font-size: 20px;
+                                                                        font-style: bold;
+                                                                        }"
+                         )
+                                                   )
+                         
+                                                   )),
+                         div(style = "text-align:center",
+                             h5(textOutput("status2"),
+                                tags$head(tags$style("#status2{color: #AF7AC5;
+                                                     font-size: 20px;
+                                                     font-style: bold;
+                                                     }"
+                         )
+                                )
+                         
+                                )),
+                         
+                         h5(textOutput("status3"),
+                            tags$head(tags$style("#status3{color: #1E407C;
+                                                 font-size: 23px;
+                                                 font-style: bold;
+                                                 }"
+                         
+                            )
+                            
+                            )),
+                         
+                         br()
+                         )
+                         
+                            ),
+                         
+                         column(5,
+                                conditionalPanel("input.newplot ==0", div(style = "text-align:center", h1(textOutput ("click")))),
+                                
+                                
+                                plotOutput("plot1"),
+                                bsPopover("plot1", "Scatterplot", 
+                                          "Move the slide bar on the left to guess the correlation", 
+                                          place = "bottom", trigger = "hover"),
+                                
+                                br(),
+                                
+                                fluidRow(
+                                  column(8, offset=0,
+                                         conditionalPanel("input.newplot !=0",
+                                                          
+                                                          
+                                                          plotOutput("plot3", height = 350, "150%"),
+                                                          bsPopover("plot3", "Your Guess vs. Answer", 
+                                                                    "Each purple dot represents one guess without outliers, orange dots are guesses with outliers.", 
+                                                                    place = "top", trigger = "hover"))
+                                  ))
+                                
+                                
+                         ),
+                         column(4,
+                                wellPanel(
+                                  style = "background-color: #EAF2F8",
+                                  h3(textOutput ("warning")),
+                                  fluidRow(
+                                    column(2, 
+                                           htmlOutput('heart1')),
+                                    
+                                    column(2, 
+                                           htmlOutput('heart2')),
+                                    
+                                    column(2, 
+                                           htmlOutput('heart3')),
+                                    
+                                    column(2, 
+                                           htmlOutput('heart4')),
+                                    
+                                    column(2,
+                                           htmlOutput('heart5'))
+                                    
+                                  ),
+                                  
+                                  fluidPage(
+                                    h1(textOutput("score"),
+                                       textOutput("correlation"))
+                                  ),
+                                  # conditionalPanel("input.submit !=0",
+                                  #                 bsButton("finish", "Finish", icon("stop-circle"),size = "large", style = "danger")),
+                                  # uiOutput("fin"),
+                                  
+                                  uiOutput("lead")
+                                  
+                                )
+                         )
+                         
+                                )
+                         
+                         
+                         
+                                                 )
+                         # tabItem(tabName = "leader",
+                         #         conditionalPanel("input.leader1 > 0", 
+                         #                          fluidPage(
+                         #                            fluidRow(
+                         #                              div(style = "text-align:center",h1(textOutput("score1"))),
+                         #                              br(),
+                         #                              fluidRow(
+                         #                                wellPanel(
+                         #                                  wellPanel(textInput("name",h4("Please type in your name to submit the score:"),placeholder = "Name",width = 600)),
+                         #                                  wellPanel(bsButton("check","Submit",style = "warning",size = "large"))
+                         #                                ),
+                         #                                
+                         #                                
+                         #                                
+                         #                                conditionalPanel("input.check != 0", dataTableOutput("highscore")),
+                         #                                actionButton("weekhigh", "Show Weekly High Scores"),
+                         #                                actionButton("totalhigh", "Show All-Time High Scores")
+                         #                                
+                         #                              )
+                         #                            ))))
+                         ))))
