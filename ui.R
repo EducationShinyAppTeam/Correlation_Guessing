@@ -7,12 +7,17 @@ library(shinydashboard)
 library(shinyWidgets)
 
 rm(list = ls())
-shinyUI(dashboardPage(skin="yellow",
+shinyUI(dashboardPage(skin = "yellow",
                       
-                      dashboardHeader(title = "Correlation Guessing Game"),
+                      dashboardHeader(title = "Correlation Guessing Game",
+                                      tags$li(class = "dropdown",
+                                              tags$a(href = "https://shinyapps.science.psu.edu/",
+                                                     icon("home", lib = "font-awesome"))), 
+                                      tags$li(class = "dropdown",
+                                              actionLink("info", icon("info"), class = "myClass"))),
                       dashboardSidebar(
                         sidebarMenu(
-                          id="tabs",
+                          id = "tabs",
                           menuItem("Overview", tabName = "intro",icon=icon("dashboard")),
                           menuItem("Game", tabName = "game",icon=icon("gamepad"))
                           #menuItem("Score Board", tabName = "leader",icon=icon("dashboard"))
@@ -64,7 +69,9 @@ shinyUI(dashboardPage(skin="yellow",
                                     h4(tags$li("Click Finish to stop the game without penalty.")),
                                     h4(tags$li("Lose 25 points if you lose your last life.")),
                                     br(),
-                                    div(style = "text-align: center" ,bsButton("start", "GO", icon("bolt"),size = "large", style = "warning")),
+                                    div(style = "text-align: center" ,
+                                        bsButton("start", "GO!", icon("bolt"),
+                                                 size = "large", style = "warning", class = "circle grow")),
 
                                     h3(strong("Acknowledgements:")),
                                     h4("This app was developed and coded by Sitong Liu and futher updated by Zhiliang Zhang and Jiajun Gao.",
@@ -79,22 +86,35 @@ shinyUI(dashboardPage(skin="yellow",
                                     column(3,
                                            wellPanel(
                                              style = "background-color: #EAF2F8",
-                                             div(style="display: inline-block;vertical-align:top;",
-                                                 tags$a(href='https://shinyapps.science.psu.edu/',tags$img(src='homebut.PNG', width = 19))
-                                             ),
-                                             div(style="display: inline-block;vertical-align:top;",
-                                                 circleButton("info",icon = icon("info"), status = "myClass",size = "xs")
-                                             ),
-                                             selectInput("difficulty",label=h3("Mode"),
-                                                         
-                                                         choices=list("Without Outlier","With Outlier", "Random")
-                                             ),
-                                             checkboxGroupInput(inputId="options", label=h3("Show:"),choices=list("Show Regression Line")),
-                                             h3("Making your guess: "),
-                                             sliderInput("slider",label="The correlation of the plot is",min=-1,max=1,step=0.01, value=0),
+                                             #div(style="display: inline-block;vertical-align:top;",
+                                             #   tags$a(href='https://shinyapps.science.psu.edu/',tags$img(src='homebut.PNG', width = 19))
+                                            # ),
+                                             #div(style="display: inline-block;vertical-align:top;",
+                                             #    circleButton("info",icon = icon("info"), status = "myClass",size = "xs")
+                                             #),
+                                            div(style = "text-align:center",
+                                             selectInput("difficulty",
+                                                         label = h4(strong("Mode")),
+                                                         choices = list("Without Outlier","With Outlier", "Random")),
+                                             checkboxGroupInput("options",
+                                                                label = h3(""),
+                                                                choices = list("Show Regression Line"))),
+                                            br(),
+                                            div(style = "text-align:center",
+                                            # h3(""),
+                                             sliderInput("slider",
+                                                         label="Select the Correlation:",
+                                                         min=-1,
+                                                         max=1,
+                                                         step=0.01,
+                                                         value=0)),
                                              br(),
                                              div(style = "text-align:center",
-                                                 bsButton("newplot",label = "Generate New Plot",icon("arrow- circle-right"), size = "large", style = "warning")),
+                                                 bsButton("newplot",
+                                                          label = "Generate New Plot",
+                                                          icon("arrow- circle-right"),
+                                                          size = "medium",
+                                                          style = "warning")),
                                              br(),
                                              div(style = "text-align:center", uiOutput("sub")), # make the button disappear once the game is over
                                              br(),
@@ -135,11 +155,11 @@ shinyUI(dashboardPage(skin="yellow",
                          
                             ),
                          
-                         column(5,
+                         column(6,
                                 conditionalPanel("input.newplot ==0", div(style = "text-align:center", h1(textOutput ("click")))),
                                 
                                 
-                                plotOutput("plot1"),
+                                plotOutput("plot1", height = 350),
                                 bsPopover("plot1", "Scatterplot", 
                                           "Move the slide bar on the left to guess the correlation", 
                                           place = "bottom", trigger = "hover"),
@@ -151,7 +171,7 @@ shinyUI(dashboardPage(skin="yellow",
                                          conditionalPanel("input.newplot !=0",
                                                           
                                                           
-                                                          plotOutput("plot3", height = 350, "150%"),
+                                                          plotOutput("plot3", height = 350, "155%"),
                                                           bsPopover("plot3", "Your Guess vs. Answer", 
                                                                     "Each purple dot represents one guess without outliers, orange dots are guesses with outliers.", 
                                                                     place = "top", trigger = "hover"))
@@ -159,7 +179,7 @@ shinyUI(dashboardPage(skin="yellow",
                                 
                                 
                          ),
-                         column(4,
+                         column(3,
                                 wellPanel(
                                   style = "background-color: #EAF2F8",
                                   h3(textOutput ("warning")),

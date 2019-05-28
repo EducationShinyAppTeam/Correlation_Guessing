@@ -102,7 +102,12 @@ shinyServer(
       hhh <<- 5
     })
     output$sub <- renderUI({
-      bsButton("submit", label = "Submit", icon("hand-o-up"), size = "large", style = "warning", disabled = TRUE)
+      bsButton("submit",
+               label = "Submit",
+               icon("hand-o-up"),
+               size = "medium",
+               style = "warning",
+               disabled = TRUE)
     })
     
     # force student submit answer before generate a new plot and only submit answer once
@@ -157,7 +162,7 @@ shinyServer(
       }
       else{
         output$click <- renderText({
-          "Click Generate New Plot button to start game"
+          "Click 'Generate New Plot' to Start Game"
         })}
     })
     
@@ -206,10 +211,10 @@ shinyServer(
           
           options=is.na(pmatch(c( "Show Regression Line"),input$options))
           output$plot1 <- renderPlot({
-            plot(data, col = "#EC7063", cex = 2, pch = 16)
+            plot(data, col = "#FFA500", cex = 2, pch = 16, main = "Current Scatterplot")
             if (!options[1]){
               fit1<- lm(data$Y ~ data$X, data)
-              plot(data, col = "#EC7063", cex = 2, pch = 16)
+              plot(data, col = "#FFA500", cex = 2, pch = 16)
               abline(fit1, col = "#BB8FCE", lwd = 2.5)
               
             }
@@ -234,16 +239,36 @@ shinyServer(
       #Start the plot
       
       if(length(answersave$answer)==0){
-        plot(-5, xlim = c(-1,1), ylim = c(-1,1), xlab = "Correlation", ylab = "Answer",  cex = 2, pch = 16)
-        lines(x = seq(-2,2), y = seq(-2,2),  col = "black", lwd = "2")
+        plot(-5, xlim = c(-1,1),
+             ylim = c(-1,1),
+             xlab = "Correlation",
+             ylab = "Answer",
+             cex = 2, pch = 16)
+        lines(x = seq(-2,2),
+              y = seq(-2,2),
+              col = "black",
+              lwd = "2")
       }
       
       # different dataset to show different color of points
       else{
         plot(y = aneasy$answereasy, x= easysave$easy, xlim = c(-1,1), 
-             ylim = c(-1,1), xlab = "Correlation", ylab = "Answer",  main = "Track your Performance",cex = 2, pch = 16, col = "#AF7AC5")
-        points(x= anhard$answerhard, y=hardsave$hard, cex = 2, pch = 16, col ="#F39C12")
-        lines(x = seq(-2,2), y = seq(-2,2), col = "black",lwd = "2")
+             ylim = c(-1,1),
+             xlab = "Actual Correlation",
+             ylab = "Your Answer",
+             main = "Track your Performance",
+             cex = 2,
+             pch = 16,
+             col = "#FF0000")
+        points(x= anhard$answerhard,
+               y=hardsave$hard, 
+               cex = 2,
+               pch = 16,
+               col ="#690000")
+        lines(x = seq(-2,2),
+              y = seq(-2,2),
+              col = "black",
+              lwd = "2")
       }
     })
     ################################################################################################################################
@@ -492,94 +517,94 @@ shinyServer(
       ### using hhh to define html plot
       if(hhh==5){
         output$heart1 <- renderUI({
-          img(src = "heart.gif", width = 50)
+          img(src = "5hearts.png", width = 230)
         })
-        output$heart2 <- renderUI({
-          img(src = "heart.gif", width = 50)
-        })
-        output$heart3 <- renderUI({
-          img(src = "heart.gif", width = 50)
-        })
-        output$heart4 <- renderUI({
-          img(src = "heart.gif", width = 50)
-        })
-        output$heart5 <- renderUI({
-          img(src = "heart.gif", width = 50)
-        })
+        #output$heart2 <- renderUI({
+         # img(src = "pixelHeart.png", width = 50)
+        #})
+        #output$heart3 <- renderUI({
+        #  img(src = "pixelHeart.png", width = 50)
+        #})
+        #output$heart4 <- renderUI({
+        #  img(src = "pixelHeart.png", width = 50)
+        #})
+        #output$heart5 <- renderUI({
+        #  img(src = "pixelHeart.png", width = 50)
+        #})
         
       }
       else if(hhh==4){
         output$heart1 <- renderUI({
-          img(src = "heart.gif", width = 50)
+          img(src = "4hearts.png", width = 230)
         })
-        output$heart2 <- renderUI({
-          img(src = "heart.gif", width = 50)
-        })
-        output$heart3 <- renderUI({
-          img(src = "heart.gif", width = 50)
-        })
-        output$heart4 <- renderUI({
-          img(src = "heart.gif", width = 50)
-        })
-        output$heart5 <- renderUI({
-          NULL
-        })
+       # output$heart2 <- renderUI({
+      #    img(src = "pixelHeart.png", width = 50)
+       # })
+        #output$heart3 <- renderUI({
+        #  img(src = "pixelHeart.png", width = 50)
+        #})
+        #output$heart4 <- renderUI({
+        #  img(src = "pixelHeart.png", width = 50)
+        #})
+        #output$heart5 <- renderUI({
+        #  NULL
+        #})
         
       }
       else if(hhh==3){
         output$heart1 <- renderUI({
-          img(src = "heart.gif", width = 50)
+          img(src = "3hearts.png", width = 230)
         })
-        output$heart2 <- renderUI({
-          img(src = "heart.gif", width = 50)
-        })
-        output$heart3 <- renderUI({
-          img(src = "heart.gif", width = 50)
-        })
-        output$heart4 <- renderUI({
-          NULL
-        })
-        output$heart5 <- renderUI({
-          NULL
-        })
+        #output$heart2 <- renderUI({
+         # img(src = "pixelHeart.png", width = 50)
+       # })
+        #output$heart3 <- renderUI({
+        #  img(src = "pixelHeart.png", width = 50)
+        #})
+       # output$heart4 <- renderUI({
+        #  NULL
+       # })
+       # output$heart5 <- renderUI({
+       #   NULL
+       # })
       }
       else if(hhh==2){
         output$heart1 <- renderUI({
-          img(src = "heart.gif", width = 50)
+          img(src = "2hearts.png", width = 230)
         })
-        output$heart2 <- renderUI({
-          img(src = "heart.gif", width = 50)
-        })
-        output$heart3 <- renderUI({
-          NULL
-        })
-        output$heart4 <- renderUI({
-          NULL
-        })
-        output$heart5 <- renderUI({
-          NULL
-        })
+       # output$heart2 <- renderUI({
+      #    img(src = "pixelHeart.png", width = 50)
+        #})
+        #output$heart3 <- renderUI({
+        #  NULL
+        #})
+        #output$heart4 <- renderUI({
+        #  NULL
+        #})
+        #output$heart5 <- renderUI({
+        #  NULL
+        #})
       }
       else if(hhh==1){
         output$heart1 <- renderUI({
-          img(src = "heart.gif", width = 50)
+          img(src = "1heart.png", width = 230)
         })
-        output$heart2 <- renderUI({
-          NULL
-        })
-        output$heart3 <- renderUI({
-          NULL
-        })
-        output$heart4 <- renderUI({
-          NULL
-        })
-        output$heart5 <- renderUI({
-          NULL
-        })
+       # output$heart2 <- renderUI({
+      #    NULL
+       # })
+        #output$heart3 <- renderUI({
+        #  NULL
+        #})
+        #output$heart4 <- renderUI({
+        #  NULL
+        #})
+        #output$heart5 <- renderUI({
+        #  NULL
+        #})
       }
       else if(hhh==0){
         output$heart1 <- renderUI({
-          img(src = "gameover.gif", width = 150)
+          img(src = "gameisover.gif", width = 200)
         })
         output$heart2 <- renderUI({
           NULL

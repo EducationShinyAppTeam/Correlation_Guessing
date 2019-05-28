@@ -1,4 +1,4 @@
-/*.skin-blue .main-header>.navbar {
+.skin-blue .main-header>.navbar {
 background-color: #1E407C;
 }
 .content-wrapper,.right-side {
@@ -18,9 +18,14 @@ background-color: black !important;
 font-family: "Georgia", Times, "Times New Roman", serif;
 font-weight: bold;
 font-size: 15px;
-}*/
+}
+
 .btn-myClass {
     background-color: #000000;
     border: none;
     color: white;
+}
+
+.circle:hover {
+  border-radius:50%;
 }
