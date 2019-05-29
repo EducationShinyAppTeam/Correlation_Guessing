@@ -366,7 +366,7 @@ shinyServer(
           output$status1 <- renderText({paste(generateResponse(1))})
           output$status2 <- renderText({""})
           output$status3 <- renderText({paste("True correlation: ",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh+1
+          #hhh <<- hhh+1
           if(difficulty=="1"){
             score <<- score+5}
           else if (difficulty =="2"){
@@ -412,7 +412,7 @@ shinyServer(
           output$status1 <- renderText({paste(generateResponse(1))})
           output$status2 <- renderText({""})
           output$status3 <- renderText({paste("True correlation: ",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh+1
+         # hhh <<- hhh+1
           if(difficulty=="1"){
             score <<- score+5}
           else if (difficulty =="2"){
@@ -458,7 +458,7 @@ shinyServer(
           output$status1 <- renderText({paste(generateResponse(1))})
           output$status2 <- renderText({""})
           output$status3 <- renderText({paste("True correlation: ",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh+1
+         # hhh <<- hhh+1
           if(difficulty=="1"){
             score <<- score+5}
           else if (difficulty =="2"){
