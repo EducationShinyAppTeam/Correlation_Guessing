@@ -160,10 +160,10 @@ shinyServer(
       if(input$newplot != 0){
         output$click <- renderText({" "})
       }
-      #else{
-      #  output$click <- renderText({
-     #     "Click 'Generate New Plot' to Start Game"
-      #  })}
+      else{
+        output$click <- renderText({
+          "Click 'Generate New Plot' to Start Game"
+        })}
     })
     
     
