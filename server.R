@@ -160,10 +160,10 @@ shinyServer(
       if(input$newplot != 0){
         output$click <- renderText({" "})
       }
-      else{
-        output$click <- renderText({
-          "Click 'Generate New Plot' to Start Game"
-        })}
+      #else{
+      #  output$click <- renderText({
+     #     "Click 'Generate New Plot' to Start Game"
+      #  })}
     })
     
     
@@ -241,8 +241,8 @@ shinyServer(
       if(length(answersave$answer)==0){
         plot(-5, xlim = c(-1,1),
              ylim = c(-1,1),
-             xlab = "Correlation",
-             ylab = "Answer",
+             xlab = "True Correlation",
+             ylab = "Your Answer",
              cex = 2, pch = 16)
         lines(x = seq(-2,2),
               y = seq(-2,2),
@@ -254,7 +254,7 @@ shinyServer(
       else{
         plot(y = aneasy$answereasy, x= easysave$easy, xlim = c(-1,1), 
              ylim = c(-1,1),
-             xlab = "Actual Correlation",
+             xlab = "True Correlation",
              ylab = "Your Answer",
              main = "Track your Performance",
              cex = 2,

@@ -158,7 +158,9 @@ shinyUI(dashboardPage(skin = "yellow",
                             ),
                          
                          column(6,
-                                conditionalPanel("input.newplot ==0", div(style = "text-align:center", h1(textOutput ("click")))),
+                                mainPanel("input.newplot ==0",
+                                          div(style = "text-align:center",
+                                              h1(textOutput ("click")))),
                                 
                                 
                                 plotOutput("plot1", height = 350),
@@ -170,7 +172,7 @@ shinyUI(dashboardPage(skin = "yellow",
                                 
                                 fluidRow(
                                   column(8, offset=0,
-                                         conditionalPanel("input.newplot !=0",
+                                         mainPanel("input.newplot !=0",
                                                           
                                                           
                                                           plotOutput("plot3", height = 350, "155%"),
