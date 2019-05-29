@@ -170,7 +170,7 @@ shinyServer(
     
     # define difficulty
     observeEvent(input$newplot,{
-      withProgress(session, min=1, max=15, {
+      withProgress(session, min = 1, max = 15, {
         setProgress(message = 'Generating Plot',
                     detail = '')
         for (i in 1:10) {
@@ -178,22 +178,22 @@ shinyServer(
           Sys.sleep(0.05)
         }
       })
-      if(input$difficulty=="Without Outlier"){
+      if(input$difficulty == "Without Outlier"){
         difficulty <- 1
         numPoints <- 50
       }
-      else if (input$difficulty =="With Outlier"){
+      else if (input$difficulty == "With Outlier"){
         difficulty <- 2
         numPoints <- sample(5:25, 1)
       }
-      else if (input$difficulty =="Random"){
+      else if (input$difficulty == "Random"){
         select = sample(c(1,2), 1) # sample function can make the plot generate random
         select
-        if(select=="1"){
+        if(select == "1"){
           difficulty <-1
           numPoints <- 50
         }
-        else if(select =="2"){
+        else if(select == "2"){
           difficulty <-2
           numPoints <- sample(5:25,1)
         }
@@ -227,7 +227,7 @@ shinyServer(
     ############################ Track your performance and change the color of points for different level#####################################################       
     output$plot3 <- renderPlot({
       # Adding a progress bar
-      withProgress(session, min=1, max=15, {
+      withProgress(session, min = 1, max = 15, {
         setProgress(message = 'Generating Plot',
                     detail = '')
         for (i in 1:10) {
@@ -238,7 +238,7 @@ shinyServer(
       
       #Start the plot
       
-      if(length(answersave$answer)==0){
+      if(length(answersave$answer) == 0){
         plot(-5, xlim = c(-1,1),
              ylim = c(-1,1),
              xlab = "True Correlation",
@@ -252,7 +252,9 @@ shinyServer(
       
       # different dataset to show different color of points
       else{
-        plot(y = aneasy$answereasy, x= easysave$easy, xlim = c(-1,1), 
+        plot(y = aneasy$answereasy,
+             x = easysave$easy,
+             xlim = c(-1,1), 
              ylim = c(-1,1),
              xlab = "True Correlation",
              ylab = "Your Answer",
@@ -273,22 +275,22 @@ shinyServer(
     })
     ################################################################################################################################
     observeEvent(input$submit,{
-      if(input$difficulty=="Without Outlier"){
+      if(input$difficulty == "Without Outlier"){
         difficulty <- 1
         numPoints <- 50   # points will be shown on the plot
       }
-      else if (input$difficulty =="With Outlier"){
+      else if (input$difficulty == "With Outlier"){
         difficulty <- 2
         numPoints <- sample(5:25, 1)  # random points
       }
-      else if (input$difficulty =="Random"){
+      else if (input$difficulty == "Random"){
         select = sample(1:2, 1)
         select
         if(select=="1"){
           difficulty <- 1
           numPoints <- 50
         }
-        else if(select =="2"){
+        else if(select == "2"){
           difficulty <- 2
           numPoints <- sample(5:25,1)
         }
@@ -297,16 +299,16 @@ shinyServer(
       ######## Grading scale: make the shape similar to diamond 
       ###corsave$correlation[length(corsave$correlation)] would take only the last value of a vector
       #otherwise it would check only the first element of the vector
-      if((corsave$correlation[length(corsave$correlation)]==1.00)||(corsave$correlation[length(corsave$correlation)]==-1.00)){
+      if((corsave$correlation[length(corsave$correlation)] == 1.00)||(corsave$correlation[length(corsave$correlation)]==-1.00)){
         if(abs(input$slider-corsave$correlation[length(corsave$correlation)])<0.2){
           output$status1 <- renderText({paste(generateResponse(1),generateResponse(3))})
           output$status2 <- renderText({""})
           output$status3 <- renderText({paste("True correlation:",corsave$correlation[length(corsave$correlation)])})
           hhh <<- hhh+1 # value for hearts
           
-          if(difficulty=="1"){
+          if(difficulty == "1"){
             score <<- score+5}
-          else if (difficulty =="2"){
+          else if (difficulty == "2"){
             score <<- score+5}
           
           
