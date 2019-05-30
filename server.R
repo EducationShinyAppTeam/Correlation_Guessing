@@ -157,13 +157,13 @@ shinyServer(
     
     # starting message
     output$click <- reactive({
-      if(input$newplot != 0){
-        output$click <- renderText({" "})
+      if(input$newplot == 0){
+        output$click <- renderPlot({"plot1"})
       }
-      else{
-        output$click <- renderText({
-          "Click 'Generate New Plot' to Start Game"
-        })}
+      #else{
+      #  output$click <- renderText({
+      #    "Click 'Generate New Plot' to Start Game"
+      #  })}
     })
     
     
@@ -209,12 +209,20 @@ shinyServer(
       isolate({
         observe({
           
-          options=is.na(pmatch(c( "Show Regression Line"),input$options))
+          options = is.na(pmatch(c( "Show Regression Line"), input$options))
+          
           output$plot1 <- renderPlot({
-            plot(data, col = "#FFA500", cex = 2, pch = 16, main = "Current Scatterplot")
+            plot(data,
+                 col = "#FFA500",
+                 cex = 2,
+                 pch = 16,
+                 main = "Current Scatterplot")
             if (!options[1]){
-              fit1<- lm(data$Y ~ data$X, data)
-              plot(data, col = "#FFA500", cex = 2, pch = 16)
+              fit1 <- lm(data$Y ~ data$X, data)
+              plot(data,
+                   col = "#FFA500",
+                   cex = 2,
+                   pch = 16)
               abline(fit1, col = "#BB8FCE", lwd = 2.5)
               
             }

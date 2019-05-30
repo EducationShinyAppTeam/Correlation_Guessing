@@ -157,36 +157,36 @@ shinyUI(dashboardPage(skin = "yellow",
                          
                             ),
                          
-                         column(6,
-                                conditionalPanel("input.newplot == 0",
-                                          div(style = "text-align:center",
-                                              h1(textOutput ("click")))),
+                         column(6, align = "center",
+                                mainPanel(#"input.newplot == 0",
+                                          #div(style = "text-align:center",
+                                              #h1(textOutput("click")))),
                                 
                                 
-                                plotOutput("plot1", height = 350),
+                                plotOutput("plot1", height = 350, width = 475),
                                 bsPopover("plot1", "Scatterplot", 
                                           "Move the slide bar on the left to guess the correlation", 
-                                          place = "bottom", trigger = "hover"),
+                                          place = "bottom", trigger = "hover"))),
                                 
                                 br(),
                                 
                                 fluidRow(
-                                  column(8, offset=0,
-                                         conditionalPanel("input.newplot != 0",
-                                                          plotOutput("plot3", height = 350, "155%"),
+                                  column(6, align = "center",
+                                         mainPanel(#"input.newplot == 0",
+                                                          plotOutput("plot3", height = 350, width = 475),
                                                           bsPopover("plot3", "Your Guess vs. Answer", 
                                                                     "Each purple dot represents one guess without outliers, orange dots are guesses with outliers.", 
                                                                     place = "top", trigger = "hover"))
                                   ))
                                 
                                 
-                         ),
+                         ,
                          column(3,
                                 wellPanel(
                                   style = "background-color: #EAF2F8",
                                   h3(textOutput ("warning")),
                                   fluidRow(
-                                    column(2, 
+                                    column(3, 
                                            htmlOutput('heart1')),
                                     
                                     column(2, 
