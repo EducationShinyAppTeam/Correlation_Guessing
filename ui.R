@@ -18,8 +18,8 @@ shinyUI(dashboardPage(skin = "yellow",
                       dashboardSidebar(
                         sidebarMenu(
                           id = "tabs",
-                          menuItem("Overview", tabName = "intro",icon=icon("dashboard")),
-                          menuItem("Game", tabName = "game",icon=icon("gamepad"))
+                          menuItem("Overview", tabName = "intro",icon = icon("dashboard")),
+                          menuItem("Game", tabName = "game",icon = icon("gamepad"))
                           #menuItem("Score Board", tabName = "leader",icon=icon("dashboard"))
                         )
                       ),
@@ -52,7 +52,7 @@ shinyUI(dashboardPage(skin = "yellow",
                                   #'    the color for slider bar
                                   tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {background: orange}")),
                                   
-                                    tags$a(href='http://stat.psu.edu/',   tags$img(src='logo.png', align = "left", width = 180)),
+                                    tags$a(href='http://stat.psu.edu/', tags$img(src ='logo.png', align = "left", width = 180)),
                                     br(),
                                     br(),
                                     br(),
