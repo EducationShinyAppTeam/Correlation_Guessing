@@ -165,14 +165,16 @@ shinyUI(dashboardPage(skin = "yellow",
                                 
                                 
                                 plotOutput("plot1", height = 350, width = 475),
-                                bsPopover("plot1", "Scatterplot", 
-                                          "Move the slide bar on the left to guess the correlation", 
-                                          place = "bottom", trigger = "hover"))),
+                                bsPopover(id = "plot1",
+                                          title =  "Scatterplot", 
+                                          content = "Move the slide bar on the left to guess the correlation", 
+                                          place = "bottom",
+                                          trigger = "hover"))),
                                 
                                 br(),
                          
                          column(3,
-                                absolutePanel(bottom = 0,
+                                #absolutePanel(bottom = 0,
                                   wellPanel(
                                     style = "background-color: #EAF2F8",
                                     h3(textOutput ("warning")),
@@ -204,7 +206,7 @@ shinyUI(dashboardPage(skin = "yellow",
                                     
                                     uiOutput("lead")
                                     
-                                  ))
+                                  )#)
                          ),
                          
                          br(),
