@@ -156,8 +156,9 @@ shinyUI(dashboardPage(skin = "yellow",
                          )
                          
                             ),
+                         br(),
                          
-                         column(6, align = "center",
+                         column(8, align = "center",
                                 mainPanel(#"input.newplot == 0",
                                           #div(style = "text-align:center",
                                               #h1(textOutput("click")))),
@@ -171,7 +172,7 @@ shinyUI(dashboardPage(skin = "yellow",
                                 br(),
                                 
                                 fluidRow(
-                                  column(6, align = "center",
+                                  column(8, align = "center",
                                          mainPanel(#"input.newplot == 0",
                                                           plotOutput("plot3", height = 350, width = 475),
                                                           bsPopover("plot3", "Your Guess vs. Answer", 
@@ -181,12 +182,12 @@ shinyUI(dashboardPage(skin = "yellow",
                                 
                                 
                          ,
-                         column(3,
+                         column(4, 
                                 wellPanel(
                                   style = "background-color: #EAF2F8",
                                   h3(textOutput ("warning")),
                                   fluidRow(
-                                    column(3, 
+                                    column(2, 
                                            htmlOutput('heart1')),
                                     
                                     column(2, 

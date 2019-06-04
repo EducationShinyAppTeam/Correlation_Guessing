@@ -8,12 +8,15 @@ background-color: white;
 background-color: #1E407C;
 color: white;
 }
+
 .skin-blue .main-header .logo:hover {
 background-color: black;
 }
-aside.main-sidebar {
+
+.main-sidebar {
 background-color: black !important;
 }
+
 .main-header .logo {
 font-family: "Georgia", Times, "Times New Roman", serif;
 font-weight: bold;
