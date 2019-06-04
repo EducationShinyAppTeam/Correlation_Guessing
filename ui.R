@@ -158,7 +158,7 @@ shinyUI(dashboardPage(skin = "yellow",
                             ),
                          br(),
                          
-                         column(8, align = "center",
+                         column(6, align = "center",
                                 mainPanel(#"input.newplot == 0",
                                           #div(style = "text-align:center",
                                               #h1(textOutput("click")))),
@@ -170,7 +170,45 @@ shinyUI(dashboardPage(skin = "yellow",
                                           place = "bottom", trigger = "hover"))),
                                 
                                 br(),
-                                
+                         
+                         column(3,
+                                absolutePanel(bottom = 0,
+                                  wellPanel(
+                                    style = "background-color: #EAF2F8",
+                                    h3(textOutput ("warning")),
+                                    fluidRow(
+                                      column(2, 
+                                             htmlOutput('heart1')),
+                                      
+                                      column(2, 
+                                             htmlOutput('heart2')),
+                                      
+                                      column(2, 
+                                             htmlOutput('heart3')),
+                                      
+                                      column(2, 
+                                             htmlOutput('heart4')),
+                                      
+                                      column(2,
+                                             htmlOutput('heart5'))
+                                      
+                                    ),
+                                    
+                                    fluidPage(
+                                      h1(textOutput("score"),
+                                         textOutput("correlation"))
+                                    ),
+                                    # conditionalPanel("input.submit !=0",
+                                    #                 bsButton("finish", "Finish", icon("stop-circle"),size = "large", style = "danger")),
+                                    # uiOutput("fin"),
+                                    
+                                    uiOutput("lead")
+                                    
+                                  ))
+                         ),
+                         
+                         br(),
+                         
                                 fluidRow(
                                   column(8, align = "center",
                                          mainPanel(#"input.newplot == 0",
@@ -181,42 +219,7 @@ shinyUI(dashboardPage(skin = "yellow",
                                   ))
                                 
                                 
-                         ,
-                         column(4, 
-                                wellPanel(
-                                  style = "background-color: #EAF2F8",
-                                  h3(textOutput ("warning")),
-                                  fluidRow(
-                                    column(2, 
-                                           htmlOutput('heart1')),
-                                    
-                                    column(2, 
-                                           htmlOutput('heart2')),
-                                    
-                                    column(2, 
-                                           htmlOutput('heart3')),
-                                    
-                                    column(2, 
-                                           htmlOutput('heart4')),
-                                    
-                                    column(2,
-                                           htmlOutput('heart5'))
-                                    
-                                  ),
-                                  
-                                  fluidPage(
-                                    h1(textOutput("score"),
-                                       textOutput("correlation"))
-                                  ),
-                                  # conditionalPanel("input.submit !=0",
-                                  #                 bsButton("finish", "Finish", icon("stop-circle"),size = "large", style = "danger")),
-                                  # uiOutput("fin"),
-                                  
-                                  uiOutput("lead")
-                                  
-                                )
-                         )
-                         
+
                                 )
                          
                          

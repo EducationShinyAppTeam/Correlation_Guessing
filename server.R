@@ -88,9 +88,9 @@ shinyServer(
     score <<- 0 
     hhh <<- 5
     # in order to save the order data we need reactivevalues
-    scoresave <- reactiveValues(score= NULL)
-    heartsave <- reactiveValues(hhh= NULL)
-    answersave <- reactiveValues(answer= NULL)
+    scoresave <- reactiveValues(score = NULL)
+    heartsave <- reactiveValues(hhh = NULL)
+    answersave <- reactiveValues(answer = NULL)
     corsave <- reactiveValues(correlation = NULL)
     hardsave <- reactiveValues(hard = NULL)
     easysave <- reactiveValues(easy = NULL)
@@ -146,10 +146,10 @@ shinyServer(
       scoresave$score <- c(scoresave$score, score1)
       
     })
-    observeEvent(input$leader1, {
+    #observeEvent(input$leader1, {
       
-      updateTabItems(session, "tabs", "leader")
-    })
+    #  updateTabItems(session, "tabs", "leader")
+    #})
     observeEvent(input$start, {
       
       updateTabItems(session, "tabs", "game")
@@ -525,7 +525,7 @@ shinyServer(
       }
       
       ### using hhh to define html plot
-      if(hhh==5){
+      if(hhh == 5) {
         output$heart1 <- renderUI({
           img(src = "5hearts.png", width = 230)
         })
@@ -631,9 +631,9 @@ shinyServer(
         output$sub <- renderUI({
           NULL
         })
-        output$lead <- renderUI({
-          bsButton("leader1", label = "Score Board", size = "large", style = "warning")
-        })
+        #output$lead <- renderUI({
+        #  bsButton("leader1", label = "Score Board", size = "large", style = "warning")
+        #})
         
       }
       #### show score!
