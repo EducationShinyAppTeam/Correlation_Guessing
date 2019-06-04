@@ -9,65 +9,65 @@ library(shinyWidgets)
 
 # this funcation, especially the easy level is from xxx: the function is about correlation plot
 generateData = function(difficulty,numPoints){
-  value = rnorm(1,0,10)
-  valueB = rnorm(1,4,1)
+  value = rnorm(1, 0, 10)
+  valueB = rnorm(1, 4, 1)
   outlier = as.numeric( sample(2:6, 1)) #create a random number
-  if (difficulty ==2){ # with outlier
-    choice = sample(2,1)
-    if (choice ==2){
-      X1 = rnorm(numPoints,value,valueB)
-      Y1 = rnorm(numPoints,rnorm(1)*X1,rgamma(1,1)*valueB)
+  if (difficulty == 2){ # with outlier
+    choice = sample(2, 1)
+    if (choice == 2){
+      X1 = rnorm(numPoints, value, valueB)
+      Y1 = rnorm(numPoints, rnorm(1) * X1, rgamma(1, 1)*valueB)
       mux = mean(X1)
       sdx = sd(X1)
-      outx = mux + (outlier*sdx) # function for outlier
-      X = c(X1,outx)
+      outx = mux + (outlier * sdx) # function for outlier
+      X = c(X1, outx)
       muy = mean(Y1)
       sdy = sd(Y1)
-      outy = muy + (outlier*sdy) 
+      outy = muy + (outlier * sdy) 
       Y = c(Y1, outy)
-      return(data.frame(X,Y))
+      return(data.frame(X, Y))
       
     }
     else{
-      X1 = rnorm(numPoints,value,valueB)
-      Y1 = rnorm(numPoints,rnorm(1)*X1,rgamma(1,1)*valueB)
+      X1 = rnorm(numPoints, value, valueB)
+      Y1 = rnorm(numPoints, rnorm(1) * X1, rgamma(1, 1) * valueB)
       mux = mean(X1)
       sdx = sd(X1)
-      outx = mux - (outlier*sdx)
-      X = c(X1,outx)
+      outx = mux - (outlier * sdx)
+      X = c(X1, outx)
       muy = mean(Y1)
       sdy = sd(Y1)
-      outy = muy - (outlier*sdy)
+      outy = muy - (outlier * sdy)
       Y = c(Y1, outy)
-      return(data.frame(X,Y))
+      return(data.frame(X, Y))
       
       
     }
   }
   else if (difficulty == 1){
-    X = rnorm(numPoints,value,valueB)
-    Y = rnorm(numPoints,rnorm(1)*X,rgamma(1,1)*valueB)
-    return(data.frame(X,Y))
+    X = rnorm(numPoints, value, valueB)
+    Y = rnorm(numPoints, rnorm(1) * X, rgamma(1, 1) * valueB)
+    return(data.frame(X, Y))
   }
   
 }
 ###########################################Feedback#####################################################################################
 generateResponse = function(response){
-  if (response==1){
-    (sample(list("Correct!","Spot on!","Got it!"),1)[[1]])
+  if (response == 1){
+    (sample(list("Correct!","Spot on!","Got it!"), 1)[[1]])
   }
-  else if (response ==2){
+  else if (response == 2){
     print(sample(list("Close to the correct answer! ",
                       "Getting close ",
-                      "You are almost right","Just a bit off.."),1)[[1]])
+                      "You are almost right","Just a bit off.."), 1)[[1]])
   }
   else if (response == 3){
-    print(sample(list("When correlation = 1.00/ -1.00, all points are in a line."),1)[[1]])
+    print(sample(list("When correlation = 1.00/ -1.00, all points are in a line."), 1)[[1]])
   }
-  else if (response ==4){
-    print(sample(list( "Far away...", "Try again"),1)[[1]])
+  else if (response == 4){
+    print(sample(list( "Far away...", "Try again"), 1)[[1]])
   }
-  else if (response ==5){
+  else if (response == 5){
     print("Check the sign" )
   }
 }
@@ -114,19 +114,19 @@ shinyServer(
     
     observeEvent(input$newplot,{
       
-      updateButton(session,"submit",disabled = FALSE)
-      updateButton(session,"newplot",disabled = TRUE)
+      updateButton(session, "submit", disabled = FALSE)
+      updateButton(session, "newplot", disabled = TRUE)
     })
     
     
     observeEvent(input$submit,{
       
-      updateButton(session,"submit",disabled = TRUE)
-      updateButton(session,"newplot",disabled =FALSE)
+      updateButton(session, "submit", disabled = TRUE)
+      updateButton(session, "newplot", disabled =FALSE)
     })
     observeEvent(input$check,{
       
-      updateButton(session,"check",disabled = TRUE)
+      updateButton(session, "check", disabled = TRUE)
     })
     
     # observeEvent(input$finish,{
@@ -187,7 +187,7 @@ shinyServer(
         numPoints <- sample(5:25, 1)
       }
       else if (input$difficulty == "Random"){
-        select = sample(c(1,2), 1) # sample function can make the plot generate random
+        select = sample(c(1, 2), 1) # sample function can make the plot generate random
         select
         if(select == "1"){
           difficulty <-1
@@ -195,16 +195,16 @@ shinyServer(
         }
         else if(select == "2"){
           difficulty <-2
-          numPoints <- sample(5:25,1)
+          numPoints <- sample(5:25, 1)
         }
       }
       data = generateData(difficulty, numPoints)
-      correlation = round(cor(data[,1],data[,2]),2)
+      correlation = round(cor(data[, 1],data[, 2]), 2)
       ## correct correlation message will be shown after the answer submitted
       output$status1 <- renderText({""}) 
       output$status2 <- renderText({""})
       output$status3 <- renderText({""})
-      corsave$correlation <- c(corsave$correlation, round(cor(data[,1],data[,2]),2))
+      corsave$correlation <- c(corsave$correlation, round(cor(data[, 1],data[, 2]), 2))
       ## show regression line or not    
       isolate({
         observe({
@@ -247,13 +247,13 @@ shinyServer(
       #Start the plot
       
       if(length(answersave$answer) == 0){
-        plot(-5, xlim = c(-1,1),
-             ylim = c(-1,1),
+        plot(-5, xlim = c(-1, 1),
+             ylim = c(-1, 1),
              xlab = "True Correlation",
              ylab = "Your Answer",
              cex = 2, pch = 16)
-        lines(x = seq(-2,2),
-              y = seq(-2,2),
+        lines(x = seq(-2, 2),
+              y = seq(-2, 2),
               col = "black",
               lwd = "2")
       }
@@ -262,21 +262,21 @@ shinyServer(
       else{
         plot(y = aneasy$answereasy,
              x = easysave$easy,
-             xlim = c(-1,1), 
-             ylim = c(-1,1),
+             xlim = c(-1, 1), 
+             ylim = c(-1, 1),
              xlab = "True Correlation",
              ylab = "Your Answer",
              main = "Track your Performance",
              cex = 2,
              pch = 16,
              col = "#FF0000")
-        points(x= anhard$answerhard,
-               y=hardsave$hard, 
+        points(x = anhard$answerhard,
+               y = hardsave$hard, 
                cex = 2,
                pch = 16,
-               col ="#690000")
-        lines(x = seq(-2,2),
-              y = seq(-2,2),
+               col = "#690000")
+        lines(x = seq(-2, 2),
+              y = seq(-2, 2),
               col = "black",
               lwd = "2")
       }
@@ -294,24 +294,24 @@ shinyServer(
       else if (input$difficulty == "Random"){
         select = sample(1:2, 1)
         select
-        if(select=="1"){
+        if(select == "1"){
           difficulty <- 1
           numPoints <- 50
         }
         else if(select == "2"){
           difficulty <- 2
-          numPoints <- sample(5:25,1)
+          numPoints <- sample(5:25, 1)
         }
       }
       
       ######## Grading scale: make the shape similar to diamond 
       ###corsave$correlation[length(corsave$correlation)] would take only the last value of a vector
       #otherwise it would check only the first element of the vector
-      if((corsave$correlation[length(corsave$correlation)] == 1.00)||(corsave$correlation[length(corsave$correlation)]==-1.00)){
-        if(abs(input$slider-corsave$correlation[length(corsave$correlation)])<0.2){
-          output$status1 <- renderText({paste(generateResponse(1),generateResponse(3))})
+      if((corsave$correlation[length(corsave$correlation)] == 1.00)||(corsave$correlation[length(corsave$correlation)] == -1.00)){
+        if(abs(input$slider - corsave$correlation[length(corsave$correlation)]) < 0.2){
+          output$status1 <- renderText({paste(generateResponse(1), generateResponse(3))})
           output$status2 <- renderText({""})
-          output$status3 <- renderText({paste("True correlation:",corsave$correlation[length(corsave$correlation)])})
+          output$status3 <- renderText({paste("True correlation:", corsave$correlation[length(corsave$correlation)])})
           hhh <<- hhh+1 # value for hearts
           
           if(difficulty == "1"){
@@ -321,206 +321,214 @@ shinyServer(
           
           
         }
-        else if (abs(input$slider-corsave$correlation[length(corsave$correlation)])<0.3){
+        else if (abs(input$slider - corsave$correlation[length(corsave$correlation)]) < 0.3){
           output$status1 <- renderText({""})
           output$status2 <- renderText({paste(generateResponse(2))})
-          output$status3 <- renderText({paste("True correlation: ",corsave$correlation[length(corsave$correlation)])})
+          output$status3 <- renderText({paste("True correlation: ", corsave$correlation[length(corsave$correlation)])})
           hhh <<- hhh+0
-          if(difficulty=="1"){
-            score <<- score+0}
-          else if (difficulty =="2"){
-            score <<- score+0}
+          if(difficulty == "1"){
+            score <<- score + 0}
+          else if (difficulty == "2"){
+            score <<- score + 0}
         }
         
-        else if(((input$slider >0)&& (corsave$correlation[length(corsave$correlation)]<0))||((input$slider <0)&& (corsave$correlation[length(corsave$correlation)]>0))){
+        else if(((input$slider > 0) && (corsave$correlation[length(corsave$correlation)] < 0))||
+                ((input$slider < 0) && (corsave$correlation[length(corsave$correlation)] > 0))){
           output$status1 <- renderText({paste(generateResponse(5))})
           output$status2 <- renderText({""})
-          output$status3 <- renderText({paste("True correlation:",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh-1
+          output$status3 <- renderText({paste("True correlation:", corsave$correlation[length(corsave$correlation)])})
+          hhh <<- hhh - 1
           
-          if(difficulty=="1"){
-            score <<- score-5}
-          else if (difficulty =="2"){
-            score <<- score-5}
+          if(difficulty == "1"){
+            score <<- score - 5}
+          else if (difficulty == "2"){
+            score <<- score - 5}
         }
         
         else {
           output$status1 <- renderText({paste(generateResponse(4))})
           output$status2 <- renderText({""})
-          output$status3 <- renderText({paste("True correlation:",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh-1
+          output$status3 <- renderText({paste("True correlation:", corsave$correlation[length(corsave$correlation)])})
+          hhh <<- hhh - 1
           
-          if(difficulty=="1"){
-            score <<- score-5}
-          else if (difficulty =="2"){
-            score <<- score-5}
+          if(difficulty == "1"){
+            score <<- score - 5}
+          else if (difficulty == "2"){
+            score <<- score - 5}
           
         }
       }
       
       
-      else if(((corsave$correlation[length(corsave$correlation)]<1.00) && (corsave$correlation[length(corsave$correlation)] >=0.70))||((corsave$correlation[length(corsave$correlation)]>-1.00) && (corsave$correlation[length(corsave$correlation)] <=-0.0))){
-        if(((input$slider==1.00)&&(abs(input$slider-corsave$correlation)<0.20))||((input$slider==-1.00) &&(abs(input$slider-corsave$correlation)<0.20))){
+      else if(((corsave$correlation[length(corsave$correlation)] < 1.00) && (corsave$correlation[length(corsave$correlation)] >= 0.70))||
+              ((corsave$correlation[length(corsave$correlation)] > -1.00) && (corsave$correlation[length(corsave$correlation)] <= -0.0))){
+        if(((input$slider == 1.00) && (abs(input$slider - corsave$correlation) < 0.20))||
+           ((input$slider == -1.00) && (abs(input$slider - corsave$correlation) < 0.20))){
           output$status1 <- renderText({""})
-          output$status2 <- renderText({paste(generateResponse(2),"but",generateResponse(3)
+          output$status2 <- renderText({paste(generateResponse(2), "but", generateResponse(3)
           )})
-          output$status3 <- renderText({paste("True correlation: ",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh+0
-          if(difficulty=="1"){
-            score <<- score+0}
-          else if (difficulty =="2"){
-            score <<- score+0}
+          output$status3 <- renderText({paste("True correlation: ", corsave$correlation[length(corsave$correlation)])})
+          hhh <<- hhh + 0
+          if(difficulty == "1"){
+            score <<- score + 0}
+          else if (difficulty == "2"){
+            score <<- score + 0}
           
         }
-        else if(abs(input$slider-corsave$correlation[length(corsave$correlation)])<0.20){
+        else if(abs(input$slider - corsave$correlation[length(corsave$correlation)]) < 0.20){
           output$status1 <- renderText({paste(generateResponse(1))})
           output$status2 <- renderText({""})
-          output$status3 <- renderText({paste("True correlation: ",corsave$correlation[length(corsave$correlation)])})
+          output$status3 <- renderText({paste("True correlation: ", corsave$correlation[length(corsave$correlation)])})
           #hhh <<- hhh+1
-          if(difficulty=="1"){
-            score <<- score+5}
-          else if (difficulty =="2"){
-            score <<- score+5}
+          if(difficulty == "1"){
+            score <<- score + 5}
+          else if (difficulty == "2"){
+            score <<- score + 5}
           
         }
-        else if (abs(input$slider-corsave$correlation[length(corsave$correlation)])<0.25){
+        else if (abs(input$slider - corsave$correlation[length(corsave$correlation)]) < 0.25){
           output$status1 <- renderText({""})
           output$status2 <- renderText({paste(generateResponse(2))})
-          output$status3 <- renderText({paste("True correlation: ",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh+0
-          if(difficulty=="1"){
-            score <<- score+0}
-          else if (difficulty =="2"){
-            score <<- score+0}
+          output$status3 <- renderText({paste("True correlation: ", corsave$correlation[length(corsave$correlation)])})
+          hhh <<- hhh + 0
+          if(difficulty == "1"){
+            score <<- score + 0}
+          else if (difficulty == "2"){
+            score <<- score + 0}
           
         }
-        else if(((input$slider >0)&& (corsave$correlation[length(corsave$correlation)]<0))||((input$slider <0)&& (corsave$correlation[length(corsave$correlation)]>0))){
+        else if(((input$slider > 0) && (corsave$correlation[length(corsave$correlation)] < 0))||
+                ((input$slider < 0) && (corsave$correlation[length(corsave$correlation)] > 0))){
           output$status1 <- renderText({paste(generateResponse(5))})
           output$status2 <- renderText({""})
-          output$status3 <- renderText({paste("True correlation:",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh-1
+          output$status3 <- renderText({paste("True correlation:", corsave$correlation[length(corsave$correlation)])})
+          hhh <<- hhh - 1
           
-          if(difficulty=="1"){
-            score <<- score-5}
-          else if (difficulty =="2"){
-            score <<- score-5}
+          if(difficulty == "1"){
+            score <<- score - 5}
+          else if (difficulty == "2"){
+            score <<- score - 5}
         }
         else {
           output$status1 <- renderText({paste(generateResponse(4))})
           output$status2 <- renderText({""})
-          output$status3 <- renderText({paste("True correlation: ",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh-1
-          if(difficulty=="1"){
-            score <<- score-5}
-          else if (difficulty =="2"){
-            score <<- score-5}
+          output$status3 <- renderText({paste("True correlation: ", corsave$correlation[length(corsave$correlation)])})
+          hhh <<- hhh - 1
+          if(difficulty == "1"){
+            score <<- score - 5}
+          else if (difficulty == "2"){
+            score <<- score - 5}
           
         }
       }
-      else if(((corsave$correlation[length(corsave$correlation)]<0.70) && (corsave$correlation[length(corsave$correlation)]>= 0.45))||((corsave$correlation[length(corsave$correlation)]>-0.70) && (corsave$correlation[length(corsave$correlation)]<= -0.45))){
-        if(abs(input$slider-corsave$correlation[length(corsave$correlation)])<0.25){
+      else if(((corsave$correlation[length(corsave$correlation)] < 0.70) && (corsave$correlation[length(corsave$correlation)] >= 0.45))||
+              ((corsave$correlation[length(corsave$correlation)] > -0.70) && (corsave$correlation[length(corsave$correlation)]<= -0.45))){
+        if(abs(input$slider - corsave$correlation[length(corsave$correlation)]) < 0.25){
           output$status1 <- renderText({paste(generateResponse(1))})
           output$status2 <- renderText({""})
-          output$status3 <- renderText({paste("True correlation: ",corsave$correlation[length(corsave$correlation)])})
+          output$status3 <- renderText({paste("True correlation: ", corsave$correlation[length(corsave$correlation)])})
          # hhh <<- hhh+1
-          if(difficulty=="1"){
-            score <<- score+5}
-          else if (difficulty =="2"){
-            score <<- score+5}
+          if(difficulty == "1"){
+            score <<- score + 5}
+          else if (difficulty == "2"){
+            score <<- score + 5}
           
         }
-        else if (abs(input$slider-corsave$correlation[length(corsave$correlation)])<0.35){
+        else if (abs(input$slider - corsave$correlation[length(corsave$correlation)]) < 0.35){
           output$status1 <- renderText({""})
           output$status2 <- renderText({paste(generateResponse(2))})
-          output$status3 <- renderText({paste("True correlation: ",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh+0
-          if(difficulty=="1"){
-            score <<- score+0}
-          else if (difficulty =="2"){
-            score <<- score+0}
+          output$status3 <- renderText({paste("True correlation: ", corsave$correlation[length(corsave$correlation)])})
+          hhh <<- hhh + 0
+          if(difficulty == "1"){
+            score <<- score + 0}
+          else if (difficulty == "2"){
+            score <<- score + 0}
           
         }
-        else if(((input$slider >0)&& (corsave$correlation[length(corsave$correlation)]<0))||((input$slider <0)&& (corsave$correlation[length(corsave$correlation)]>0))){
+        else if(((input$slider > 0) && (corsave$correlation[length(corsave$correlation)] < 0))||
+                ((input$slider < 0) && (corsave$correlation[length(corsave$correlation)] > 0))){
           output$status1 <- renderText({paste(generateResponse(5))})
           output$status2 <- renderText({""})
-          output$status3 <- renderText({paste("True correlation:",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh-1
+          output$status3 <- renderText({paste("True correlation:", corsave$correlation[length(corsave$correlation)])})
+          hhh <<- hhh - 1
           
-          if(difficulty=="1"){
-            score <<- score-5}
-          else if (difficulty =="2"){
-            score <<- score-5}
+          if(difficulty == "1"){
+            score <<- score - 5}
+          else if (difficulty == "2"){
+            score <<- score - 5}
         }
         else {
           output$status1 <- renderText({paste(generateResponse(4))})
           output$status2 <- renderText({""})
-          output$status3 <- renderText({paste("True correlation: ",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh-1
-          if(difficulty=="1"){
-            score <<- score-5}
-          else if (difficulty =="2"){
-            score <<- score-5}
+          output$status3 <- renderText({paste("True correlation: ", corsave$correlation[length(corsave$correlation)])})
+          hhh <<- hhh - 1
+          if(difficulty == "1"){
+            score <<- score - 5}
+          else if (difficulty == "2"){
+            score <<- score - 5}
           
         }
       }
-      else if(((corsave$correlation[length(corsave$correlation)]<0.45))||((corsave$correlation[length(corsave$correlation)]>-0.45))){
-        if(abs(input$slider-corsave$correlation[length(corsave$correlation)])<0.25){
+      else if(((corsave$correlation[length(corsave$correlation)] < 0.45))||
+              ((corsave$correlation[length(corsave$correlation)] >- 0.45))){
+        if(abs(input$slider - corsave$correlation[length(corsave$correlation)]) < 0.25){
           output$status1 <- renderText({paste(generateResponse(1))})
           output$status2 <- renderText({""})
-          output$status3 <- renderText({paste("True correlation: ",corsave$correlation[length(corsave$correlation)])})
+          output$status3 <- renderText({paste("True correlation: ", corsave$correlation[length(corsave$correlation)])})
          # hhh <<- hhh+1
-          if(difficulty=="1"){
-            score <<- score+5}
-          else if (difficulty =="2"){
-            score <<- score+5}
+          if(difficulty == "1"){
+            score <<- score + 5}
+          else if (difficulty == "2"){
+            score <<- score + 5}
           
         }
-        else if (abs(input$slider-corsave$correlation[length(corsave$correlation)])<0.35){
+        else if (abs(input$slider - corsave$correlation[length(corsave$correlation)]) < 0.35){
           output$status1 <- renderText({""})
           output$status2 <- renderText({paste(generateResponse(2))})
-          output$status3 <- renderText({paste("True correlation: ",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh+0
-          if(difficulty=="1"){
-            score <<- score+0}
-          else if (difficulty =="2"){
-            score <<- score+0}
+          output$status3 <- renderText({paste("True correlation: ", corsave$correlation[length(corsave$correlation)])})
+          hhh <<- hhh + 0
+          if(difficulty == "1"){
+            score <<- score + 0}
+          else if (difficulty == "2"){
+            score <<- score + 0}
           
         }
-        else if(((input$slider >0)&& (corsave$correlation[length(corsave$correlation)]<0))||((input$slider <0)&& (corsave$correlation[length(corsave$correlation)]>0))){
+        else if(((input$slider > 0) && (corsave$correlation[length(corsave$correlation)] < 0))||
+                ((input$slider <0) && (corsave$correlation[length(corsave$correlation)] > 0))){
           output$status1 <- renderText({paste(generateResponse(5))})
           output$status2 <- renderText({""})
-          output$status3 <- renderText({paste("True correlation:",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh-1
+          output$status3 <- renderText({paste("True correlation:", corsave$correlation[length(corsave$correlation)])})
+          hhh <<- hhh - 1
           
-          if(difficulty=="1"){
-            score <<- score-5}
-          else if (difficulty =="2"){
-            score <<- score-5}
+          if(difficulty == "1"){
+            score <<- score - 5}
+          else if (difficulty == "2"){
+            score <<- score - 5}
         }
         else {
           output$status1 <- renderText({paste(generateResponse(4))})
           output$status2 <- renderText({""})
-          output$status3 <- renderText({paste("True correlation: ",corsave$correlation[length(corsave$correlation)])})
-          hhh <<- hhh-1
-          if(difficulty=="1"){
-            score <<- score-5}
-          else if (difficulty =="2"){
-            score <<- score-5}
+          output$status3 <- renderText({paste("True correlation: ", corsave$correlation[length(corsave$correlation)])})
+          hhh <<- hhh - 1
+          if(difficulty == "1"){
+            score <<- score - 5}
+          else if (difficulty == "2"){
+            score <<- score - 5}
           
         }
         
       }
       ##### seperate values based on the difficulty in order to use different datasets in "Track your Performance" plot
-      if(difficulty=="2"){
+      if(difficulty == "2"){
         hardsave$hard <- c(hardsave$hard,corsave$correlation[length(corsave$correlation)])
         anhard$answerhard <- c(anhard$answerhard, input$slider)
       }
-      else if(difficulty=="1"){
+      else if(difficulty == "1"){
         easysave$easy <- c(easysave$easy,corsave$correlation[length(corsave$correlation)])
         aneasy$answereasy <- c(aneasy$answereasy, input$slider)
       }
       ##### The max heart is five 
-      if(hhh>5){
+      if(hhh > 5){
         hhh<<- 5
       }
       
@@ -543,7 +551,7 @@ shinyServer(
         #})
         
       }
-      else if(hhh==4){
+      else if(hhh == 4){
         output$heart1 <- renderUI({
           img(src = "4hearts.png", width = 230)
         })
@@ -561,7 +569,7 @@ shinyServer(
         #})
         
       }
-      else if(hhh==3){
+      else if(hhh == 3){
         output$heart1 <- renderUI({
           img(src = "3hearts.png", width = 230)
         })
@@ -578,7 +586,7 @@ shinyServer(
        #   NULL
        # })
       }
-      else if(hhh==2){
+      else if(hhh == 2){
         output$heart1 <- renderUI({
           img(src = "2hearts.png", width = 230)
         })
@@ -595,7 +603,7 @@ shinyServer(
         #  NULL
         #})
       }
-      else if(hhh==1){
+      else if(hhh == 1){
         output$heart1 <- renderUI({
           img(src = "1heart.png", width = 230)
         })
@@ -612,7 +620,7 @@ shinyServer(
         #  NULL
         #})
       }
-      else if(hhh==0){
+      else if(hhh == 0){
         output$heart1 <- renderUI({
           img(src = "gameisover.gif", width = 200)
         })
@@ -706,13 +714,13 @@ shinyServer(
     
     data = reactive({
       data = loadData()
-      data = data[order(-data[,"TotalScore"], data[,"HeartRemaining"]),]
+      data = data[order(-data[, "TotalScore"], data[, "HeartRemaining"]),]
       # data
     })
     
     data2 = reactive({
       data = loadDataWeek()
-      data = data[order(-data[,"TotalScore"], data[,"HeartRemaining"]),]
+      data = data[order(-data[, "TotalScore"], data[, "HeartRemaining"]),]
     })
     
     
