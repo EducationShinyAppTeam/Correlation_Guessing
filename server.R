@@ -122,6 +122,12 @@ shinyServer(
     
     # force student submit answer before generate a new plot and only submit answer once
     
+    observeEvent(input$start,{
+      
+      updateButton(session, "submit", disabled = FALSE)
+      updateButton(session, "newplot", disabled = TRUE)
+    })
+    
     observeEvent(input$newplot,{
       
       updateButton(session, "submit", disabled = FALSE)
@@ -227,7 +233,8 @@ shinyServer(
               plot(data,
                    col = "#FFA500",
                    cex = 2,
-                   pch = 16)
+                   pch = 16,
+                   main = "Current Scatterplot")
               abline(fit1, col = "#BB8FCE", lwd = 2.5)
               
             }
@@ -256,6 +263,7 @@ shinyServer(
              ylim = c(-1, 1),
              xlab = "True Correlation",
              ylab = "Your Answer",
+             main = "Track your Performance",
              cex = 2, pch = 16)
         lines(x = seq(-2, 2),
               y = seq(-2, 2),
