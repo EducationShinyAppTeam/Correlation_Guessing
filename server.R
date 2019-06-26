@@ -103,13 +103,15 @@ shinyServer(
     })
     
     output$restart <- renderUI({
-      bsButton("restart",
+      bsButton("reset",
                label = "Restart",
                icon("restart"),
                size = "medium",
-               style = "warning",
-               disabled = TRUE)
+               style = "warning")
     })
+    
+    # hide restart button initially
+    hide("restart")
     
     output$sub <- renderUI({
       bsButton("submit",
@@ -126,19 +128,22 @@ shinyServer(
       
       updateButton(session, "submit", disabled = FALSE)
       updateButton(session, "newplot", disabled = TRUE)
+
     })
     
     observeEvent(input$newplot,{
       
       updateButton(session, "submit", disabled = FALSE)
       updateButton(session, "newplot", disabled = TRUE)
+
     })
     
     
     observeEvent(input$submit,{
       
       updateButton(session, "submit", disabled = TRUE)
-      updateButton(session, "newplot", disabled =FALSE)
+      updateButton(session, "newplot", disabled = FALSE)
+
     })
     observeEvent(input$check,{
       
@@ -637,6 +642,8 @@ shinyServer(
         output$heart1 <- renderUI({
           img(src = "gameisover.gif", width = 200)
         })
+        toggle("restart")
+        
         output$heart2 <- renderUI({
           NULL
         })
