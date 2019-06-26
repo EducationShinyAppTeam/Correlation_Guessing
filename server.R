@@ -101,6 +101,16 @@ shinyServer(
       score <<- 0 
       hhh <<- 5
     })
+    
+    output$restart <- renderUI({
+      bsButton("restart",
+               label = "Restart",
+               icon("restart"),
+               size = "medium",
+               style = "warning",
+               disabled = TRUE)
+    })
+    
     output$sub <- renderUI({
       bsButton("submit",
                label = "Submit",
@@ -155,15 +165,22 @@ shinyServer(
       updateTabItems(session, "tabs", "game")
     })
     
+    renderPlot("plot1")
+    
     # starting message
     output$click <- reactive({
       if(input$newplot == 0){
         output$click <- renderPlot({"plot1"})
       }
+      
       #else{
-      #  output$click <- renderText({
-      #    "Click 'Generate New Plot' to Start Game"
-      #  })}
+      #  output$click <- renderPlot({"plot1"})
+      #}
+      
+      else{
+        renderPlot({
+          "plot1"
+        })}
     })
     
     

@@ -150,28 +150,21 @@ shinyUI(dashboardPage(skin = "yellow",
                          
                             )
                             
-                            )),
+                            ))
                          
-                         br()
                          )
                          
                             ),
-                         br(),
-                         
+
                          column(6, align = "center",
-                                mainPanel(#"input.newplot == 0",
-                                          #div(style = "text-align:center",
-                                              #h1(textOutput("click")))),
-                                
-                                
-                                plotOutput("plot1", height = 350, width = 475),
-                                bsPopover(id = "plot1",
-                                          title =  "Scatterplot", 
-                                          content = "Move the slide bar on the left to guess the correlation", 
-                                          place = "bottom",
-                                          trigger = "hover"))),
-                                
-                                br(),
+                                mainPanel(
+                                  plotOutput("plot1", height = 350, width = 475),
+                                  bsPopover(id = "plot1",
+                                            title =  "Scatterplot", 
+                                            content = "Move the slide bar on the left to guess the correlation", 
+                                            place = "bottom",
+                                            trigger = "hover"))),
+                         br(),
                          
                          column(3,
                                 #absolutePanel(bottom = 0,
@@ -194,7 +187,7 @@ shinyUI(dashboardPage(skin = "yellow",
                                       column(2,
                                              htmlOutput('heart5'))
                                       
-                                    ),
+                                    )),
                                     
                                     fluidPage(
                                       h1(textOutput("score"),
@@ -206,13 +199,10 @@ shinyUI(dashboardPage(skin = "yellow",
                                     
                                     uiOutput("lead")
                                     
-                                  )#)
-                         ),
-                         
-                         br(),
-                         
-                                fluidRow(
-                                  column(8, align = "center",
+                                  ),#)
+
+
+                                  column(6, align = "center",
                                          mainPanel(#"input.newplot == 0",
                                                           plotOutput("plot3", height = 350, width = 475),
                                                           bsPopover("plot3", "Your Guess vs. Answer", 
@@ -222,9 +212,9 @@ shinyUI(dashboardPage(skin = "yellow",
                                 
                                 
 
-                                )
+                                
                          
-                         
+                        
                          
                                                  )
                          # tabItem(tabName = "leader",
