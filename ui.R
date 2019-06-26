@@ -170,7 +170,7 @@ shinyUI(dashboardPage(skin = "yellow",
                                 #absolutePanel(bottom = 0,
                                   wellPanel(
                                     style = "background-color: #EAF2F8",
-                                    h3(textOutput ("warning")),
+                                    tags$h1(textOutput("score")),
                                     fluidRow(
                                       column(2, 
                                              htmlOutput('heart1')),
@@ -186,13 +186,8 @@ shinyUI(dashboardPage(skin = "yellow",
                                       
                                       column(2,
                                              htmlOutput('heart5'))
-                                      
                                     )),
                                     
-                                    fluidPage(
-                                      h1(textOutput("score"),
-                                         textOutput("correlation"))
-                                    ),
                                     # conditionalPanel("input.submit !=0",
                                     #                 bsButton("finish", "Finish", icon("stop-circle"),size = "large", style = "danger")),
                                     # uiOutput("fin"),
