@@ -117,7 +117,7 @@ shinyServer(
                icon("hand-o-up"),
                size = "medium",
                style = "warning",
-               disabled = TRUE)
+               disabled = FALSE)
     })
     
     # force student submit answer before generate a new plot and only submit answer once
@@ -167,12 +167,9 @@ shinyServer(
     
 
     
-    # starting message
 
     
-    
-    # define difficulty
-    observeEvent(input$newplot || input$start,{
+    observeEvent(input$newplot,{
       withProgress(session, min = 1, max = 15, {
         setProgress(message = 'Generating Plot',
                     detail = '')
@@ -181,6 +178,11 @@ shinyServer(
           Sys.sleep(0.05)
         }
       })
+    })
+    
+    
+    # define difficulty
+    observeEvent(input$newplot || input$start,{
       if(input$difficulty == "Without Outlier"){
         difficulty <- 1
         numPoints <- 50
