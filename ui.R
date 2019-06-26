@@ -63,7 +63,7 @@ shinyUI(dashboardPage(skin = "yellow",
                                     h3(strong("Instructions:")),
                                     tags$ol(
                                     h4(tags$li("Select the mode")),
-                                    h4(tags$li("Optional - show the regression")),
+                                    h4(tags$li("(Optional) - Show the regression line")),
                                     h4(tags$li("Answer using the slider")),
                                     h4(tags$li("Hit submit"))),
                                     h3(strong("Scoring")),
