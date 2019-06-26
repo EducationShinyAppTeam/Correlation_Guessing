@@ -165,28 +165,14 @@ shinyServer(
       updateTabItems(session, "tabs", "game")
     })
     
-    renderPlot("plot1")
+
     
     # starting message
-    output$click <- reactive({
-      if(input$newplot == 0){
-        output$click <- renderPlot({"plot1"})
-      }
-      
-      #else{
-      #  output$click <- renderPlot({"plot1"})
-      #}
-      
-      else{
-        renderPlot({
-          "plot1"
-        })}
-    })
-    
+
     
     
     # define difficulty
-    observeEvent(input$newplot,{
+    observeEvent(input$newplot || input$start,{
       withProgress(session, min = 1, max = 15, {
         setProgress(message = 'Generating Plot',
                     detail = '')
