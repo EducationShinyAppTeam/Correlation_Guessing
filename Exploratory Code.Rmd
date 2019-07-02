@@ -1,0 +1,121 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+rm(list = ls())
+library(shiny)
+library(ggplot2)
+library(shinyBS)
+library(shinyjs)
+library(V8)
+library(shinydashboard)
+library(graphics)
+library(shinyWidgets)
+
+
+generateData = function(difficulty,numPoints){
+  value = rnorm(1, 0, 10)
+  valueB = rnorm(1, 4, 1)
+  outlier = as.numeric( sample(2:6, 1)) #create a random number
+  if (difficulty == 2){ # with outlier
+    choice = sample(2, 1)
+    if (choice == 2){
+      X1 = rnorm(numPoints, value, valueB)
+      Y1 = rnorm(numPoints, rnorm(1) * X1, rgamma(1, 1)*valueB)
+      mux = mean(X1)
+      sdx = sd(X1)
+      outx = mux + (outlier * sdx) # function for outlier
+      X = c(X1, outx)
+      muy = mean(Y1)
+      sdy = sd(Y1)
+      outy = muy + (outlier * sdy) 
+      Y = c(Y1, outy)
+      return(data.frame(X, Y))
+      
+    }
+    else{
+      X1 = rnorm(numPoints, value, valueB)
+      Y1 = rnorm(numPoints, rnorm(1) * X1, rgamma(1, 1) * valueB)
+      mux = mean(X1)
+      sdx = sd(X1)
+      outx = mux - (outlier * sdx)
+      X = c(X1, outx)
+      muy = mean(Y1)
+      sdy = sd(Y1)
+      outy = muy - (outlier * sdy)
+      Y = c(Y1, outy)
+      return(data.frame(X, Y))
+      
+      
+    }
+  }
+  else if (difficulty == 1){
+    X = rnorm(numPoints, value, valueB)
+    Y = rnorm(numPoints, rnorm(1) * X, rgamma(1, 1) * valueB)
+    return(data.frame(X, Y))
+  }
+  
+}
+
+```
+
+```{r}
+
+difficulty <- 1
+numPoints <- sample(5:25, 1)
+
+```
+
+```{r}
+
+data = generateData(difficulty, numPoints)
+
+```
+
+
+```{r}
+            plot(data,
+                 col = "#FFA500",
+                 cex = 2,
+                 pch = 16,
+                 main = "Current Scatterplot")
+
+```
+
+
+```{r}
+
+mydata <- data.frame(x = data$X, y = data$Y)
+
+
+#mydata(data.frame(x = data$X, y = data$Y))
+
+mydata
+
+```
+
+```{r}
+
+alldata = data.frame()
+
+for (i in 1:7) {
+  mydata$i <- i
+  alldata <- rbind(mydata, i)
+}
+
+alldata
+
+```
+
+
+
+
+
+
+
+
+
+
