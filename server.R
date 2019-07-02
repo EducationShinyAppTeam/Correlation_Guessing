@@ -247,8 +247,7 @@ shinyServer(
           })
         })
       })
-    })  
-    
+    }) 
     ############################ Track your performance and change the color of points for different level#####################################################       
     output$plot3 <- renderPlot({
       # Adding a progress bar

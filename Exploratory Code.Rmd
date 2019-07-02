@@ -88,7 +88,7 @@ data = generateData(difficulty, numPoints)
 
 ```{r}
 
-mydata <- data.frame(x = data$X, y = data$Y)
+mydata <-  data.frame(x = data$X, y = data$Y)
 
 
 #mydata(data.frame(x = data$X, y = data$Y))
