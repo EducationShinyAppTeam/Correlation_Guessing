@@ -99,17 +99,57 @@ mydata
 
 ```{r}
 
-alldata = data.frame()
-
-for (i in 1:7) {
-  mydata$i <- i
-  alldata <- rbind(mydata, i)
-}
-
-alldata
+data = generateData(difficulty, numPoints)
 
 ```
 
+
+```{r}
+            plot(data,
+                 col = "#FFA500",
+                 cex = 2,
+                 pch = 16,
+                 main = "Current Scatterplot")
+
+```
+
+
+
+```{r}
+
+nextdata <- data.frame(x = data$X, y = data$Y)
+
+nextdata
+
+rbind(mydata, nextdata)
+
+```
+
+```{r}
+
+data = generateData(difficulty, numPoints)
+
+```
+
+
+```{r}
+            plot(data,
+                 col = "#FFA500",
+                 cex = 2,
+                 pch = 16,
+                 main = "Current Scatterplot")
+
+```
+
+
+```{r}
+
+nextdata2 <- data.frame(x = data$X, y = data$Y)
+
+rbind(mydata, nextdata, nextdata2)
+
+
+```
 
 
 
