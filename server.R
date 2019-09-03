@@ -107,11 +107,12 @@ shinyServer(
                label = "Restart",
                icon("restart"),
                size = "medium",
-               style = "warning")
+               style = "warning",
+               disabled = TRUE)
     })
     
     # hide restart button initially
-    hide("restart")
+  #  hide("restart")
     
     output$sub <- renderUI({
       bsButton("submit",
@@ -641,8 +642,6 @@ shinyServer(
         output$heart1 <- renderUI({
           img(src = "gameisover.gif", width = 200)
         })
-        toggle("restart")
-        
         output$heart2 <- renderUI({
           NULL
         })
