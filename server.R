@@ -287,16 +287,17 @@ shinyServer(
              main = "Track your Performance",
              cex = 2,
              pch = 16,
-             col = "#FF0000")
+             col = "#D56AEF")
         points(x = anhard$answerhard,
                y = hardsave$hard, 
                cex = 2,
                pch = 16,
-               col = "#690000")
+               col = "#F96B5C")
         lines(x = seq(-2, 2),
               y = seq(-2, 2),
               col = "black",
               lwd = "2")
+        
       }
     })
     ################################################################################################################################
@@ -547,7 +548,7 @@ shinyServer(
       }
       ##### The max heart is five 
       if(hhh > 5){
-        hhh<<- 5
+        hhh <<- 5
       }
       
       ### using hhh to define html plot

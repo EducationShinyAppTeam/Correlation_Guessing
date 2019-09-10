@@ -64,7 +64,7 @@ shinyUI(dashboardPage(skin = "yellow",
                                     tags$ol(
                                     h4(tags$li("Select the mode")),
                                     h4(tags$li("(Optional) - Show the regression line")),
-                                    h4(tags$li("Choose the correlation using the slider")),
+                                    h4(tags$li("Estimate the correlation using the slider")),
                                     h4(tags$li("Hit submit"))),
                                     h3(strong("Scoring")),
                                     h4(tags$li("Start the game with 5 lives (hearts)")),
@@ -205,9 +205,11 @@ shinyUI(dashboardPage(skin = "yellow",
                                   column(6, align = "center",
                                          mainPanel(#"input.newplot == 0",
                                                           plotOutput("plot3", height = 350, width = 475),
-                                                          bsPopover("plot3", "Your Guess vs. Answer", 
-                                                                    "Each purple dot represents one guess without outliers, orange dots are guesses with outliers.", 
-                                                                    place = "top", trigger = "hover"))
+                                                          bsPopover("plot3", "Your Guess vs. Answer",
+                                                                    "This plot will show how your estimates compare to the correct answers.",
+                                                                    #"Each purple dot represents one guess without outliers, orange dots are guesses with outliers.", 
+                                                                    place = "top",
+                                                                    trigger = "hover"))
                                   ))
                                 
                                 
