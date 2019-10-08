@@ -6,6 +6,7 @@ library(V8)
 library(shinydashboard)
 library(graphics)
 library(shinyWidgets)
+library(rlocker)
 
 # this funcation, especially the easy level is from xxx: the function is about correlation plot
 generateData = function(difficulty,numPoints){
@@ -75,8 +76,22 @@ generateResponse = function(response){
 ################################################################################################################################
 
 shinyServer(
-  
   func=function(input, output, clientData, session) {
+    #Initialized learning  locker connection
+    connection <- rlocker::connect(session, list(
+      base_url = "https://learning-locker.stat.vmhost.psu.edu/",
+      auth = "Basic ZDQ2OTNhZWZhN2Q0ODRhYTU4OTFmOTlhNWE1YzBkMjQxMjFmMGZiZjo4N2IwYzc3Mjc1MzU3MWZkMzc1ZDliY2YzOTNjMGZiNzcxOThiYWU2",
+      agent = rlocker::createAgent()
+    ))
+    
+    # Setup demo app and user.
+    currentUser <- 
+      connection$agent
+    
+    if(connection$status != 200){
+      warning(paste(connection$status, "\nTry checking your auth token.")) 
+    }
+    
     observeEvent(input$info,{
       sendSweetAlert(
         session = session,
@@ -141,7 +156,6 @@ shinyServer(
     
     
     observeEvent(input$submit,{
-      
       updateButton(session, "submit", disabled = TRUE)
       updateButton(session, "newplot", disabled = FALSE)
 
@@ -162,12 +176,12 @@ shinyServer(
     
     
     
-    observeEvent(input$submit, {
-      answersave$answer <- c(answersave$answer, input$slider)
-      score1 = c()
-      scoresave$score <- c(scoresave$score, score1)
-      
-    })
+    # observeEvent(input$submit, {
+    #   # answersave$answer <- c(answersave$answer, input$slider)
+    #   # score1 = c()
+    #   # scoresave$score <- c(scoresave$score, score1)
+    #   
+    # })
     #observeEvent(input$leader1, {
       
     #  updateTabItems(session, "tabs", "leader")
@@ -301,7 +315,22 @@ shinyServer(
       }
     })
     ################################################################################################################################
+    # Gets current page address from the current session
+    getCurrentAddress <- function(session){
+      return(paste0(
+        session$clientData$url_protocol, "//",
+        session$clientData$url_hostname,
+        session$clientData$url_pathname, ":",
+        session$clientData$url_port,
+        session$clientData$url_search
+      ))
+    }
+    
     observeEvent(input$submit,{
+      answersave$answer <- c(answersave$answer, input$slider)
+      score1 = c()
+      scoresave$score <- c(scoresave$score, score1)
+      
       if(input$difficulty == "Without Outlier"){
         difficulty <- 1
         numPoints <- 50   # points will be shown on the plot
@@ -667,6 +696,29 @@ shinyServer(
       output$score <- renderText({
         paste("Score:", score)
       })
+      
+      statement <- rlocker::createStatement(
+        list(
+          verb = list(
+            display = "submitted"
+          ),
+          object = list(
+            id = paste0(getCurrentAddress(session), "#", 1),
+            name = paste('Type'),
+            description = "NA"
+          ),
+          result = list(
+            success = if(score>0) TRUE else FALSE,
+            response = "SOMETHING"
+          )
+        )
+      )
+      
+      # Store statement in locker and return status
+      status <- rlocker::store(session, statement)
+      
+      print(statement) # remove me
+      print(status) # remove me
       
     })
     #####Leader Board ########

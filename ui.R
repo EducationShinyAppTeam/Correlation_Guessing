@@ -5,6 +5,7 @@ library(shinyjs)
 library(V8)
 library(shinydashboard)
 library(shinyWidgets)
+library(rlocker)
 
 rm(list = ls())
 shinyUI(dashboardPage(skin = "yellow",
