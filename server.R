@@ -708,7 +708,7 @@ shinyServer(
             description = "NA"
           ),
           result = list(
-            success = if(score>0) TRUE else FALSE,
+            success = if(score > 0) TRUE else FALSE,
             response = "SOMETHING"
           )
         )
