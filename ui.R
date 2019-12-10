@@ -89,13 +89,7 @@ shinyUI(dashboardPage(skin = "yellow",
                                     column(3,
                                            wellPanel(
                                              style = "background-color: #EAF2F8",
-                                             #div(style="display: inline-block;vertical-align:top;",
-                                             #   tags$a(href='https://shinyapps.science.psu.edu/',tags$img(src='homebut.PNG', width = 19))
-                                            # ),
-                                             #div(style="display: inline-block;vertical-align:top;",
-                                             #    circleButton("info",icon = icon("info"), status = "myClass",size = "xs")
-                                             #),
-                                            div(style = "text-align:center",
+                                             div(style = "text-align:center",
                                              selectInput("difficulty",
                                                          label = h4(strong("Choose Mode")),
                                                          choices = list("Without Outlier","With Outlier", "Random")),
@@ -171,7 +165,6 @@ shinyUI(dashboardPage(skin = "yellow",
                          br(),
                          
                          column(3,
-                                #absolutePanel(bottom = 0,
                                   wellPanel(
                                     style = "background-color: #EAF2F8",
                                     tags$h2(textOutput("score")),
