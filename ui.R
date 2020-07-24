@@ -1,41 +1,45 @@
+#library(rlocker)
 library(shiny)
-library(ggplot2)
 library(shinyBS)
-library(shinyjs)
-library(V8)
 library(shinydashboard)
 library(shinyWidgets)
-library(rlocker)
-
-rm(list = ls())
-shinyUI(dashboardPage(skin = "yellow",
-                      
-                      dashboardHeader(title = "Correlation Guessing Game",
-                                      tags$li(class = "dropdown",
-                                              tags$a(href = "https://shinyapps.science.psu.edu/",
-                                                     icon("home", lib = "font-awesome"))), 
-                                      tags$li(class = "dropdown",
-                                              actionLink("info", icon("info"), class = "myClass"))),
-                      dashboardSidebar(
-                        sidebarMenu(
-                          id = "tabs",
-                          menuItem("Overview", tabName = "intro",icon = icon("dashboard")),
-                          menuItem("Game", tabName = "game",icon = icon("gamepad"))
-                          #menuItem("Score Board", tabName = "leader",icon=icon("dashboard"))
-                        )
-                      ),
-                      dashboardBody(
-                        tags$head( 
-                          tags$link(rel = "stylesheet", type = "text/css", href = "Feature.css"),
-                          tags$style(HTML(
-                            '.popover-title{
-                            color: black;
-                            background-color: orange }'
-                          )),
-                          
-                          #Change the style of progress bar
-                          tags$style(
-                            HTML(".shiny-notification {
+library(boastUtils)
+# UI starts --- 
+shinyUI(
+  dashboardPage(
+    skin = "yellow",
+    #Dashboard Header
+    dashboardHeader(
+      titleWidth = 250,
+      title = "Correlation Guessing",
+      tags$li(class = "dropdown",
+              actionLink("info",icon("info",class = "myClass"))),
+      tags$li(
+        class = "dropdown",
+        tags$a(href = "https://shinyapps.science.psu.edu/",
+               icon("home", lib = "font-awesome"))
+      )
+    ),
+    #Dashboard Sidebar
+    dashboardSidebar(
+      width = 250,
+      sidebarMenu(id = "tabs",
+                  menuItem("Overview", tabName = "overview", icon = icon("dashboard")),
+                  menuItem("Game", tabName = "game", icon = icon("gamepad")),
+                  menuItem("Reference", tabName = "References", icon = icon("leanpub"))
+      ),
+      tags$div(class = "sidebar-logo",
+               boastUtils::psu_eberly_logo("reversed"))
+    ),
+    #Dashboard Body
+    dashboardBody(
+      tags$head(
+        tags$link(rel = "stylesheet", type = "text/css",
+                  href = "https://educationshinyappteam.github.io/Style_Guide/theme/boast.css"),
+        #Change the style of progress bar
+        tags$style(
+          HTML(
+            ".shiny-notification {
                                  height: 100px;
                                  width: 800px;
                                  position:fixed;
@@ -43,194 +47,223 @@ shinyUI(dashboardPage(skin = "yellow",
                                  left: calc(50% - 400px);;
                                  }
                                  "
-                            )
-                            )),
-                        tabItems(
-                          # First tab content
-                          tabItem(tabName = "intro",
-                                  
-                                  #' fluidRow(
-                                  #'    the color for slider bar
-                                  tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {background: orange}")),
-                                  
-                                    tags$a(href='http://stat.psu.edu/', tags$img(src ='logo.png', align = "left", width = 180)),
-                                    br(),
-                                    br(),
-                                    br(),
-                                    h3(strong("About:")),
-                                    
-                                    h4("This game is designed to help you better understand the numerical value of correlations for scatterplots with or without outliers."),
-                                    
-                                    h3(strong("Instructions:")),
-                                    tags$ol(
-                                    h4(tags$li("Select the mode")),
-                                    h4(tags$li("(Optional) - Show the regression line")),
-                                    h4(tags$li("Estimate the correlation using the slider")),
-                                    h4(tags$li("Hit submit"))),
-                                    h3(strong("Scoring")),
-                                    h4(tags$li("Start the game with 5 lives (hearts)")),
-                                    h4(tags$li("Gain 5 points per correct answer")),
-                                    h4(tags$li("Lose 5 points per wrong answer")),
-                                    br(),
-                                    div(style = "text-align: center" ,
-                                        bsButton("start", "GO!", icon("bolt"),
-                                                 size = "large", style = "warning", class = "circle grow")),
-
-                                    h3(strong("Acknowledgements:")),
-                                    h4("This app was developed and coded by Sitong Liu and futher updated by Zhiliang Zhang, Jiajun Gao, and Oluwafunke Alliyu.",
-                                       "This app is based on extending the idea in the Rossman/Chance applet at http://www.rossmanchance.com/applets/GuessCorrelation.html.",
-                                       " Special thanks to Caihui Xiao and Yuxin Zhang for help on some programming issues."),
-                                    br()
-                                    
-                                  ),
-                          tabItem(tabName = "game",
-                                  
-                                  fluidRow(
-                                    column(3,
-                                           wellPanel(
-                                             style = "background-color: #EAF2F8",
-                                             div(style = "text-align:center",
-                                             selectInput("difficulty",
-                                                         label = h4(strong("Choose Mode")),
-                                                         choices = list("Without Outlier","With Outlier", "Random")),
-                                             checkboxGroupInput("options",
-                                                                label = h3(""),
-                                                                choices = list("Show Regression Line"))),
-                                            br(),
-                                            div(style = "text-align:center",
-                                            # h3(""),
-                                             sliderInput("slider",
-                                                         label = "Select the Correlation:",
-                                                         min = -1,
-                                                         max = 1,
-                                                         step = 0.01,
-                                                         value = 0)),
-                                             br(),
-                                             div(style = "text-align:center",
-                                                 bsButton("newplot",
-                                                          label = "Generate New Plot",
-                                                          icon("arrow-circle-right"),
-                                                          size = "medium",
-                                                          style = "warning")),
-                                             br(),
-                                             div(style = "text-align:center",
-                                                 uiOutput("sub")),
-                                              #   br(),
-                                              #   uiOutput("restart")), 
-                                             br(),
-                                             
-                                             div(style = "text-align:center",
-                                                 p(textOutput("status1"),
-                                                   tags$head(tags$style("#status1{color: #FA8072;
-                                                                        font-size: 20px;
-                                                                        font-style: bold;
-                                                                        }"
-                         )
-                                                   )
-                         
-                                                   )),
-                         div(style = "text-align:center",
-                             h5(textOutput("status2"),
-                                tags$head(tags$style("#status2{color: #AF7AC5;
-                                                     font-size: 20px;
-                                                     font-style: bold;
-                                                     }"
-                         )
-                                )
-                         
-                                )),
-                         
-                         h5(textOutput("status3"),
-                            tags$head(tags$style("#status3{color: #1E407C;
-                                                 font-size: 23px;
-                                                 font-style: bold;
-                                                 }"
-                         
-                            )
-                            
-                            ))
-                         
-                         )
-                         
-                            ),
-
-                         column(6, align = "center",
-                                mainPanel(
-                                  plotOutput("plot1", height = 350, width = 475),
-                                  bsPopover(id = "plot1",
-                                            title =  "Scatterplot", 
-                                            content = "Move the slide bar on the left to guess the correlation", 
-                                            place = "bottom",
-                                            trigger = "hover"))),
-                         br(),
-                         
-                         column(3,
-                                  wellPanel(
-                                    style = "background-color: #EAF2F8",
-                                    tags$h2(textOutput("score")),
-                                    fluidRow(
-                                      column(2, 
-                                             htmlOutput('heart1')),
-                                      
-                                      column(2, 
-                                             htmlOutput('heart2')),
-                                      
-                                      column(2, 
-                                             htmlOutput('heart3')),
-                                      
-                                      column(2, 
-                                             htmlOutput('heart4')),
-                                      
-                                      column(2,
-                                             htmlOutput('heart5'))
-                                      
-
-                                    )),
-                                    
-                                    # conditionalPanel("input.submit !=0",
-                                    #                 bsButton("finish", "Finish", icon("stop-circle"),size = "large", style = "danger")),
-                                    # uiOutput("fin"),
-                                    
-                                    uiOutput("lead")
-                                    
-                                  ),#)
-
-
-                                  column(6, align = "center",
-                                         mainPanel(#"input.newplot == 0",
-                                                          plotOutput("plot3", height = 350, width = 475),
-                                                          bsPopover("plot3", "Your Guess vs. Answer",
-                                                                    "This plot will show how your estimates compare to the correct answers.",
-                                                                    #"Each purple dot represents one guess without outliers, orange dots are guesses with outliers.", 
-                                                                    place = "top",
-                                                                    trigger = "hover"))
-                                  ))
-                                
-                                
-
-                                
-                         
-                        
-                         
-                                                 )
-                         # tabItem(tabName = "leader",
-                         #         conditionalPanel("input.leader1 > 0", 
-                         #                          fluidPage(
-                         #                            fluidRow(
-                         #                              div(style = "text-align:center",h1(textOutput("score1"))),
-                         #                              br(),
-                         #                              fluidRow(
-                         #                                wellPanel(
-                         #                                  wellPanel(textInput("name",h4("Please type in your name to submit the score:"),placeholder = "Name",width = 600)),
-                         #                                  wellPanel(bsButton("check","Submit",style = "warning",size = "large"))
-                         #                                ),
-                         #                                
-                         #                                
-                         #                                
-                         #                                conditionalPanel("input.check != 0", dataTableOutput("highscore")),
-                         #                                actionButton("weekhigh", "Show Weekly High Scores"),
-                         #                                actionButton("totalhigh", "Show All-Time High Scores")
-                         #                                
-                         #                              )
-                         #                            ))))
-                         ))))
+          )
+        )
+      ),
+      tabItems(
+        ## First tab - Overview
+        tabItem(
+          tabName = "overview",
+          h1("Correlation Guessing"),
+          # Title
+          p("This App is designed to help you better understand the 
+            numerical value of correlations for scatterplots with 
+            or without outliers."
+          ),
+          br(),
+          h2("Instructions"),
+          tags$ol(
+            tags$li("Select the mode"),
+            tags$li("(Optional) - Show the regression line"),
+            tags$li("Estimate the correlation using the slider and hit submit.
+                    Next, hit 'Generate Plot' to proceed the game"),
+            tags$li("You have 5 lives and once you lose all hearts, game is over
+                    and you can clikc 'RESET' button to restart"),
+            tags$li("Gain 5 points per correct answer and 
+                    lose 5 points per wrong answer"),
+            tags$li("You can also track your performance from 
+                    the performance plot")
+          ),
+          div(
+            style = "text-align: center" ,
+            bsButton(
+              inputId = "start",
+              label = "GO!",
+              size = "large",
+              icon = icon("bolt"),
+            )
+          ),
+          #Acknowledgement
+          br(),
+          br(),
+          h2("Acknowledgements"),
+          p(
+            "This app was developed and coded by Sitong Liu. 
+            The app was futher updated by Zhiliang Zhang and Jiajun Gao 
+            in June 2018 and Oluwafunke Alliyu in June 2019
+            and Daehoon Gwak in July 2020.
+            Special thanks to Caihui Xiao and Yuxin Zhang
+            for help on some programming issues.",
+            br(),
+            br(),
+            br(),
+            div(class = "updated", "Last Update: 7/24/2020 by DG.")
+          )
+        ),
+        ## Second tab - Game
+        tabItem(tabName = "game",
+                h2('Find the appropriate correlation'),
+                fluidRow(
+                  column(
+                    #choose mode
+                    width = 3,
+                    wellPanel(
+                      div(
+                        align = "center",
+                        selectInput(
+                          inputId = "difficulty",
+                          label = strong("Choose Mode"),
+                          choices = list("Without Outlier", "With Outlier",
+                                         "Both"),
+                          width = '100%'
+                        ),
+                        #checkbox for regression line
+                        checkboxGroupInput(
+                          inputId = "options",
+                          label = "",
+                          choices = list("Show Regression Line"),
+                          width = '100%'
+                        )
+                      ),
+                      br(),
+                      div(
+                        align = 'center',
+                        sliderInput(
+                          inputId = "slider",
+                          label = "Select the Correlation:",
+                          min = -1,
+                          max = 1,
+                          step = 0.01,
+                          value = 0,
+                          width = '100%'
+                        )
+                      ),
+                      br(),
+                      div(align = 'center',
+                          bsButton(
+                            inputId = "submit",
+                            label = "Submit",
+                            icon = icon("hand-o-up"),
+                            size = "large",
+                            width = '100%'
+                          )
+                      ),
+                      br(),
+                      div(
+                        align = 'center', 
+                        bsButton(
+                          inputId = "newplot",
+                          label = "Generate Plot",
+                          icon = icon("arrow-circle-right"),
+                          size = "large",
+                          width = '100%')
+                      ),
+                      br(),
+                      #Pass or Fail notification button
+                      div(textOutput("status1"), align = 'center',
+                          class = "redtext"),
+                      div(textOutput("status2"), align = 'center'),
+                      br(),
+                      #True correlation
+                      div(textOutput("status3"), align = 'center',
+                          class = "bluetext"),
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    align = "center",
+                    # Scatter plot
+                    plotOutput(outputId = "plot1", width = '100%'),
+                    bsPopover(
+                      id = "plot1",
+                      title =  "Scatterplot",
+                      content = "Move the slide bar on the left to guess the correlation",
+                      place = "top",
+                      trigger = "hover"
+                    ), 
+                    # Alt text
+                    tags$script(
+                      HTML(
+                        "$(document).ready(function()
+                       { document.getElementById('plot1').
+                       setAttribute('aria-label',
+                       `This is a Scatter plot`)
+                       })"
+                      )
+                    ),
+                    # Track performance plot
+                    plotOutput(outputId = "plot2", width = '100%'),
+                    bsPopover(
+                      id = "plot2",
+                      title = "Your Guess vs. Answer",
+                      content = "Red dot represents Without outlier and Blue dot represents With outlier.",
+                      placement = "top",
+                      trigger = "hover"
+                    ),
+                    tags$script(
+                      HTML(
+                        "$(document).ready(function()
+                       { document.getElementById('plot2').
+                       setAttribute('aria-label',
+                       `The plot shows the user performance by adding points`)
+                       })"
+                      )
+                    )
+                  ),
+                  br(),
+                  # score UI
+                  column(
+                    width = 3,
+                    wellPanel(
+                      textOutput("score"),
+                      uiOutput('heart'),
+                      actionButton(inputId = "reset", label =  "RESET",
+                                   width = '100%')
+                    )
+                  )
+                )
+        ),
+        tabItem(
+          tabName = "References",
+          h2("References"),
+          p(     #shinyBS
+            class = "hangingindent",
+            "Bailey, E. (2015). shinyBS: Twitter bootstrap components for shiny.
+            (v0.61). [R package]. Available from
+            https://CRAN.R-project.org/package=shinyBS"
+          ),
+          p(     #Boast Utilities
+            class = "hangingindent",
+            "Carey, R. (2019). boastUtils: BOAST Utilities. (v0.1.0).
+            [R Package]. Available from
+            https://github.com/EducationShinyAppTeam/boastUtils"
+          ),
+          p(     #reference for ideas
+            class = "hangingindent",
+            "Chance, B., and Chance, F. (2014), Guess the Correlation Applet
+        Available from http://www.rossmanchance.com/applets/GuessCorrelation.html"
+          ),
+          p(     #shinydashboard
+            class = "hangingindent",
+            "Chang, W. and Borges Ribeio, B. (2018). shinydashboard: Create
+            dashboards with 'Shiny'. (v0.7.1) [R Package]. Available from
+            https://CRAN.R-project.org/package=shinydashboard"
+          ),
+          p(     #shiny
+            class = "hangingindent",
+            "Chang, W., Cheng, J., Allaire, J., Xie, Y., and McPherson, J.
+            (2019). shiny: Web application framework for R. (v1.4.0)
+            [R Package]. Available from https://CRAN.R-project.org/package=shiny"
+          ),
+          p(     #shinyWidgets
+            class = "hangingindent",
+            "Perrier, V., Meyer, F., Granjon, D., Fellows, I., and Davis, W.
+            (2020). shinyWidgets: Custom Inputs Widgets for Shiny
+            (v0.5.2). [R package]. Available from
+            https://cran.r-project.org/web/packages/shinyWidgets/index.html"
+          )
+        )
+      )
+    )
+  )
+)
