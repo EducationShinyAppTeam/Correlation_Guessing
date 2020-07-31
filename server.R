@@ -46,11 +46,11 @@ generateResponse = function(response){
     sample(list("Correct!","Spot on!","Got it!"), 1)[[1]]
   }
   else if (response == 2){
-    sample(list("Close to the correct answer! ", "Getting close ",
+    sample(list("Close to the correct answer! ", "Getting close ", 
                 "You are almost right","Just a bit off.."), 1)[[1]]
   }
   else if (response == 3){
-    sample(list("When correlation = 1.00/ -1.00, 
+    sample(list("When correlation = 1.00/ -1.00,  
                 all points are in a line."), 1)[[1]]
   }
   else if (response == 4){
@@ -66,7 +66,8 @@ shinyServer(
     #Initialized learning  locker connection
     connection <- rlocker::connect(session, list(
       base_url = "https://learning-locker.stat.vmhost.psu.edu/",
-      auth = "Basic ZDQ2OTNhZWZhN2Q0ODRhYTU4OTFmOTlhNWE1YzBkMjQxMjFmMGZiZjo4N2IwYzc3Mjc1MzU3MWZkMzc1ZDliY2YzOTNjMGZiNzcxOThiYWU2",
+      # This weird thing should be in the single-line. paste() function does not work
+      auth = "Basic ZDQ2OTNhZWZhN2Q0ODRhYTU4OTFmOTlhNWE1YzBkMjQxMjFmMGZiZjo4N2IwYzc3Mjc1MzU3MWZkMzc1ZDliY2YzOTNjMGZiNzcxOThiYWU2",  
       agent = rlocker::createAgent()
     ))
     # Setup demo app and user.
@@ -79,9 +80,9 @@ shinyServer(
     observeEvent(input$info,{
       sendSweetAlert(
         session = session,
-        title = "Instructions:",
-        text = "Generate a new plot, use the slider to guess the correlation,
-        repeat and track your performance in the bottom plot.",
+        title = "Instructions:", 
+        text = "Generate a new plot, use the slider to guess the correlation, 
+        repeat and track your performance in the bottom plot.", 
         type = "info"
       )
     })
@@ -109,7 +110,7 @@ shinyServer(
     output$heart <- renderUI({
       if(hhh == 5){
         img(src = "5hearts.png",
-            alt = "Show how many life user has - five",
+            alt = "Show how many life user has - five", 
             width = '100%')
       }
     })
@@ -117,7 +118,7 @@ shinyServer(
     observeEvent(input$newplot,{
       # progress bar
       withProgress(session, min = 1, max = 15, {
-        setProgress(message = 'Generating Plot',
+        setProgress(message = 'Generating Plot', 
                     detail = '')
         for (i in 1:10) {
           setProgress(value = i)
@@ -466,7 +467,6 @@ shinyServer(
       # Store statement in locker and return status
       status <- rlocker::store(session, statement)
     })
-    
     observeEvent(input$reset,{
       score <<- 0 
       hhh <<- 5
@@ -475,11 +475,10 @@ shinyServer(
       easysave$easy <- NULL
       anhard$answerhard <- NULL
       hardsave$hard <- NULL
-      
       if(hhh == 5) {
         output$heart <- renderUI({
           img(src = "5hearts.png",
-              alt = "Show how many life user has - five",
+              alt = "Show how many life user has - five", 
               width = '100%')
         })
         output$score <- renderText({
@@ -490,7 +489,6 @@ shinyServer(
       updateButton(session, "newplot", disabled = FALSE)
       updateButton(session, "reset", disabled = TRUE)
     })
-    
     # define difficulty - when clicking - Generate Plot, GO!
     observeEvent(input$newplot || input$start,{
       if(input$difficulty == "Without Outlier"){
@@ -527,16 +525,16 @@ shinyServer(
           options = is.na(pmatch(c( "Show Regression Line"), input$options))
           output$plot1 <- renderPlot({
             plot(data,
-                 col = "#FFA500",
-                 cex = 2,
-                 pch = 16,
+                 col = "#FFA500", 
+                 cex = 2, 
+                 pch = 16, 
                  main = "Current Scatterplot")
             if (!options[1]){
               fit1 <- lm(data$Y ~ data$X, data)
               plot(data,
-                   col = "#FFA500",
-                   cex = 2,
-                   pch = 16,
+                   col = "#FFA500", 
+                   cex = 2, 
+                   pch = 16, 
                    main = "Current Scatterplot")
               abline(fit1, col = "#BB8FCE", lwd = 2.5)
             }
@@ -593,18 +591,18 @@ shinyServer(
             output$plot1 <- renderPlot({
               plot(
                 data,
-                col = "#FFA500",
-                cex = 2,
-                pch = 16,
+                col = "#FFA500", 
+                cex = 2, 
+                pch = 16, 
                 main = "Current Scatterplot"
               )
               if (!options[1]) {
                 fit1 <- lm(data$Y ~ data$X, data)
                 plot(
-                  data,
-                  col = "#FFA500",
-                  cex = 2,
-                  pch = 16,
+                  data, 
+                  col = "#FFA500", 
+                  cex = 2, 
+                  pch = 16, 
                   main = "Current Scatterplot"
                 )
                 abline(fit1, col = "#BB8FCE", lwd = 2.5)
@@ -617,15 +615,12 @@ shinyServer(
         updateButton(session, "newplot", disabled = TRUE)
         updateButton(session, "reset", disabled = TRUE)
       }
-    }) 
-    
-    
-    
+    })
     ## Track your performance and change the color of points for different level
     output$plot2 <- renderPlot({
       # Adding a progress bar
       withProgress(session, min = 1, max = 15, {
-        setProgress(message = 'Generating Plot',
+        setProgress(message = 'Generating Plot', 
                     detail = '')
         for (i in 1:10) {
           setProgress(value = i)
@@ -635,34 +630,34 @@ shinyServer(
       #Start the plot
       plot(-5, xlim = c(-1, 1),
            ylim = c(-1, 1),
-           xlab = "True Correlation",
-           ylab = "Your Answer",
-           main = "Track your Performance",
+           xlab = "True Correlation", 
+           ylab = "Your Answer", 
+           main = "Track your Performance", 
            cex = 2, pch = 16)
-      lines(x = seq(-2, 2),
-            y = seq(-2, 2),
-            col = "black",
+      lines(x = seq(-2, 2), 
+            y = seq(-2, 2), 
+            col = "black", 
             lwd = "2")
       # different dataset to show different color of points
       if(length(answersave$answer) != 0){
         plot(y = aneasy$answereasy, #without outlier
-             x = easysave$easy,
+             x = easysave$easy, 
              xlim = c(-1, 1), 
-             ylim = c(-1, 1),
-             xlab = "True Correlation",
-             ylab = "Your Answer",
-             main = "Track your Performance",
-             cex = 2,
-             pch = 16,
+             ylim = c(-1, 1), 
+             xlab = "True Correlation", 
+             ylab = "Your Answer", 
+             main = "Track your Performance", 
+             cex = 2, 
+             pch = 16, 
              col = "#ff0000")
         points(x = anhard$answerhard, #with outlier
-               y = hardsave$hard, 
-               cex = 2,
-               pch = 16,
+               y = hardsave$hard,  
+               cex = 2, 
+               pch = 16, 
                col = "#2300ff")
-        lines(x = seq(-2, 2),
-              y = seq(-2, 2),
-              col = "black",
+        lines(x = seq(-2, 2), 
+              y = seq(-2, 2), 
+              col = "black", 
               lwd = "2")
         par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
       }
