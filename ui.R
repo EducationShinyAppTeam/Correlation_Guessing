@@ -177,7 +177,8 @@ shinyUI(
                     bsPopover(
                       id = "plot1",
                       title =  "Scatterplot",
-                      content = "Move the slide bar on the left to guess the correlation",
+                      content = paste("Move the slide bar on the left",
+                                      "to guess the correlation"),
                       place = "top",
                       trigger = "hover"
                     ), 
@@ -196,7 +197,8 @@ shinyUI(
                     bsPopover(
                       id = "plot2",
                       title = "Your Guess vs. Answer",
-                      content = "Red dot represents Without outlier and Blue dot represents With outlier.",
+                      content = paste("Red dot represents Without outlier",
+                                      "and Blue dot represents With outlier."),
                       placement = "top",
                       trigger = "hover"
                     ),
