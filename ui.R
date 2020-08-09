@@ -27,7 +27,7 @@ shinyUI(
                   menuItem("Overview", tabName = "overview", 
                            icon = icon("dashboard")), 
                   menuItem("Game", tabName = "game", icon = icon("gamepad")), 
-                  menuItem("Reference", tabName = "References", 
+                  menuItem("References", tabName = "References", 
                            icon = icon("leanpub"))
       ),
       tags$div(class = "sidebar-logo", 
@@ -64,16 +64,17 @@ shinyUI(
           br(), 
           h2("Instructions"), 
           tags$ol(
-            tags$li("Select the mode"), 
-            tags$li("(Optional) - Show the regression line"), 
+            tags$li("Select the mode regarding including outliers."), 
+            tags$li("(Optional) - Show the regression line."), 
             tags$li("Estimate the correlation using the slider and hit submit.
-                    Next, hit 'Generate Plot' to proceed the game"), 
-            tags$li("You have 5 lives and once you lose all hearts, game is over
-                    and you can clikc 'RESET' button to restart"), 
+                    Next, hit 'Generate Plot' to move to the next scatterplot."), 
+            tags$li("You have 5 lives and once you lose all of your hearts, 
+                     the game is over. You can click the 'RESET' button 
+                     to restart  the game."), 
             tags$li("Gain 5 points per correct answer and 
-                    lose 5 points per wrong answer"), 
+                    lose 5 points per wrong answer."), 
             tags$li("You can also track your performance from 
-                    the performance plot")
+                    the performance plot.")
           ), 
           div(
             style = "text-align: center" , 

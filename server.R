@@ -83,7 +83,8 @@ shinyServer(
         title = "Instructions:", 
         text = "Generate a new plot, use the slider to guess the correlation, 
         repeat and track your performance in the bottom plot.", 
-        type = "info"
+        type = "info", 
+        width = "60%"
       )
     })
     # in order to save the order data we need reactivevalues
