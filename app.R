@@ -163,6 +163,7 @@ gradeEstimate <- function(user, corr) {
       output$message <- "You're guess is too far away."
     }
   }
+  
   return(output)
 }
 
@@ -211,7 +212,7 @@ ui <- list(
           tabName = "overview",
           icon = icon("tachometer-alt")
         ),
-        menuItem("Game", tabName = "game", icon = icon("gamepad")),
+        menuItem("Game", tabName = "challenge", icon = icon("gamepad")),
         menuItem("References",
           tabName = "References",
           icon = icon("leanpub")
@@ -278,9 +279,9 @@ ui <- list(
             div(class = "updated", "Last Update: 9/15/2020 by NJH.")
           )
         ),
-        ## Second tab - Game ----
+        ## Challenge Tab ----
         tabItem(
-          tabName = "game",
+          tabName = "challenge",
           h2("Find the appropriate correlation"),
           fluidRow(
             column(
@@ -483,7 +484,7 @@ server <- function(input, output, clientData, session) {
     updateTabItems(
       session = session,
       inputId = "tabs",
-      selected = "game"
+      selected = "challenge"
     )
   })
 
@@ -526,12 +527,33 @@ server <- function(input, output, clientData, session) {
       actualValue = correlation(),
       difficulty = input$difficulty
     )
+    
     tracking$DT <- rbind(tracking$DT, currentPoints)
 
     results <- gradeEstimate(user = input$slider, corr = correlation())
-
+    
+    ### Store xAPI statement ----
+    stmt <- boastUtils::generateStatement(
+      session,
+      verb = "answered",
+      object = "shiny-tab-challenge",
+      description = "Find the appropriate correlation",
+      interactionType = "numeric",
+      response = jsonlite::toJSON(list(
+        answered = input$slider,
+        target = correlation(),
+        delta = (input$slider - correlation()),
+        difficulty = input$difficulty,
+        feedback = results$message
+      ), auto_unbox = TRUE),
+      success = ifelse(results$scoreChange > 0, TRUE, FALSE)
+    )
+    
+    boastUtils::storeStatement(session, stmt)
+    
     hearts(hearts() + results$heartChange)
     score(score() + results$scoreChange)
+    
     output$gradingIcon <- boastUtils::renderIcon(results$icon)
     output$feedback <- renderUI(results$message)
     output$corrVal <- renderUI({
@@ -582,6 +604,7 @@ server <- function(input, output, clientData, session) {
       inputId = "submit",
       disabled = FALSE
     )
+    
     updateButton(
       session = session,
       inputId = "newplot",
@@ -628,6 +651,7 @@ server <- function(input, output, clientData, session) {
       inputId = "submit",
       disabled = FALSE
     )
+    
     updateButton(
       session = session,
       inputId = "newplot",
@@ -752,15 +776,29 @@ server <- function(input, output, clientData, session) {
     } else {
       updateButton(session, "submit", disabled = TRUE)
       updateButton(session, "newplot", disabled = TRUE)
+      
+      msg <- "You have no hearts left; game over"
+      
+      ### Store xAPI statement ----
+      stmt <- boastUtils::generateStatement(
+        session,
+        verb = "failed",
+        object = "shiny-tab-challenge",
+        description = "Find the appropriate correlation",
+        response = msg,
+        success = FALSE
+      )
+      
+      boastUtils::storeStatement(session, stmt)
+      
       img(
         src = "gameisover.gif",
-        alt = "You have no hearts left; game over",
+        alt = msg,
         width = "100%"
       )
     }
   })
 }
-
 
 # Boast App Call ----
 boastUtils::boastApp(ui = ui, server = server)
