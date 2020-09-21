@@ -543,7 +543,7 @@ server <- function(input, output, clientData, session) {
     stmt <- boastUtils::generateStatement(
       session,
       verb = "answered",
-      object = "shiny-tab-challenge",
+      object = "shiny-tab-game",
       description = "Find the appropriate correlation",
       interactionType = "numeric",
       response = jsonlite::toJSON(list(
@@ -786,7 +786,7 @@ server <- function(input, output, clientData, session) {
       stmt <- boastUtils::generateStatement(
         session,
         verb = "failed",
-        object = "shiny-tab-challenge",
+        object = "shiny-tab-game",
         description = "Find the appropriate correlation",
         response = msg,
         success = FALSE
