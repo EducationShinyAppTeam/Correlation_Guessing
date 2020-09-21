@@ -163,7 +163,6 @@ gradeEstimate <- function(user, corr) {
       output$message <- "You're guess is too far away."
     }
   }
-  
   return(output)
 }
 
@@ -212,7 +211,7 @@ ui <- list(
           tabName = "overview",
           icon = icon("tachometer-alt")
         ),
-        menuItem("Game", tabName = "challenge", icon = icon("gamepad")),
+        menuItem("Game", tabName = "game", icon = icon("gamepad")),
         menuItem("References",
           tabName = "References",
           icon = icon("leanpub")
@@ -262,7 +261,7 @@ ui <- list(
               icon = icon("bolt")
             )
           ),
-          # Acknowledgement
+          # Acknowledgements
           br(),
           br(),
           h2("Acknowledgements"),
@@ -279,9 +278,9 @@ ui <- list(
             div(class = "updated", "Last Update: 9/15/2020 by NJH.")
           )
         ),
-        ## Challenge Tab ----
+        ## Second tab - Game ----
         tabItem(
-          tabName = "challenge",
+          tabName = "game",
           h2("Find the appropriate correlation"),
           fluidRow(
             column(
@@ -401,6 +400,15 @@ ui <- list(
                 )
               )
             )
+          ),
+          div(
+            style = "text-align: right;",
+            bsButton(
+              inputId = "resetPerf",
+              label = "Reset Performance Log",
+              style = "danger",
+              size = "default"
+            )
           )
         ),
         ### References ----
@@ -484,7 +492,7 @@ server <- function(input, output, clientData, session) {
     updateTabItems(
       session = session,
       inputId = "tabs",
-      selected = "challenge"
+      selected = "game"
     )
   })
 
@@ -527,11 +535,10 @@ server <- function(input, output, clientData, session) {
       actualValue = correlation(),
       difficulty = input$difficulty
     )
-    
     tracking$DT <- rbind(tracking$DT, currentPoints)
 
     results <- gradeEstimate(user = input$slider, corr = correlation())
-    
+
     ### Store xAPI statement ----
     stmt <- boastUtils::generateStatement(
       session,
@@ -548,12 +555,11 @@ server <- function(input, output, clientData, session) {
       ), auto_unbox = TRUE),
       success = ifelse(results$scoreChange > 0, TRUE, FALSE)
     )
-    
+
     boastUtils::storeStatement(session, stmt)
-    
+
     hearts(hearts() + results$heartChange)
     score(score() + results$scoreChange)
-    
     output$gradingIcon <- boastUtils::renderIcon(results$icon)
     output$feedback <- renderUI(results$message)
     output$corrVal <- renderUI({
@@ -604,7 +610,6 @@ server <- function(input, output, clientData, session) {
       inputId = "submit",
       disabled = FALSE
     )
-    
     updateButton(
       session = session,
       inputId = "newplot",
@@ -651,7 +656,6 @@ server <- function(input, output, clientData, session) {
       inputId = "submit",
       disabled = FALSE
     )
-    
     updateButton(
       session = session,
       inputId = "newplot",
@@ -776,9 +780,8 @@ server <- function(input, output, clientData, session) {
     } else {
       updateButton(session, "submit", disabled = TRUE)
       updateButton(session, "newplot", disabled = TRUE)
-      
       msg <- "You have no hearts left; game over"
-      
+
       ### Store xAPI statement ----
       stmt <- boastUtils::generateStatement(
         session,
@@ -788,9 +791,8 @@ server <- function(input, output, clientData, session) {
         response = msg,
         success = FALSE
       )
-      
+
       boastUtils::storeStatement(session, stmt)
-      
       img(
         src = "gameisover.gif",
         alt = msg,
@@ -798,7 +800,17 @@ server <- function(input, output, clientData, session) {
       )
     }
   })
+
+  ## Reset Performance Button ----
+  observeEvent(input$resetPerf, {
+    tracking$DT <- data.frame(
+      userGuess = numeric(),
+      actualValue = numeric(),
+      difficulty = character()
+    )
+  })
 }
+
 
 # Boast App Call ----
 boastUtils::boastApp(ui = ui, server = server)
