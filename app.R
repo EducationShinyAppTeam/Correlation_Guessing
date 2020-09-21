@@ -539,6 +539,25 @@ server <- function(input, output, clientData, session) {
 
     results <- gradeEstimate(user = input$slider, corr = correlation())
 
+    ### Store xAPI statement ----
+    stmt <- boastUtils::generateStatement(
+      session,
+      verb = "answered",
+      object = "shiny-tab-challenge",
+      description = "Find the appropriate correlation",
+      interactionType = "numeric",
+      response = jsonlite::toJSON(list(
+        answered = input$slider,
+        target = correlation(),
+        delta = (input$slider - correlation()),
+        difficulty = input$difficulty,
+        feedback = results$message
+      ), auto_unbox = TRUE),
+      success = ifelse(results$scoreChange > 0, TRUE, FALSE)
+    )
+
+    boastUtils::storeStatement(session, stmt)
+
     hearts(hearts() + results$heartChange)
     score(score() + results$scoreChange)
     output$gradingIcon <- boastUtils::renderIcon(results$icon)
@@ -761,9 +780,22 @@ server <- function(input, output, clientData, session) {
     } else {
       updateButton(session, "submit", disabled = TRUE)
       updateButton(session, "newplot", disabled = TRUE)
+      msg <- "You have no hearts left; game over"
+
+      ### Store xAPI statement ----
+      stmt <- boastUtils::generateStatement(
+        session,
+        verb = "failed",
+        object = "shiny-tab-challenge",
+        description = "Find the appropriate correlation",
+        response = msg,
+        success = FALSE
+      )
+
+      boastUtils::storeStatement(session, stmt)
       img(
         src = "gameisover.gif",
-        alt = "You have no hearts left; game over",
+        alt = msg,
         width = "100%"
       )
     }
