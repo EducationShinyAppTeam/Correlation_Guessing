@@ -464,7 +464,7 @@ ui <- list(
 )
 
 # Define the Server ----
-server <- function(input, output, clientData, session) {
+server <- function(input, output, session) {
   ## Reactive Values ----
   hearts <- reactiveVal(5)
   score <- reactiveVal(0)
@@ -478,7 +478,62 @@ server <- function(input, output, clientData, session) {
     actualValue = numeric(),
     difficulty = character()
   )
+  
   currentPlot <- reactiveVal()
+  
+  ## Render a new plot ----
+  newPlot <- function() {
+    
+    ### Reset output ----
+    output$gradingIcon <- boastUtils::renderIcon()
+    output$feedback <- renderUI(NULL)
+    output$corrVal <- renderUI(NULL)
+    
+    ### Create data ----
+    data <- generateData(input$difficulty)
+    correlation(round(cor(data[, 1], data[, 2]), 2))
+    numPoints(nrow(data))
+    cooksD(round( cooks.distance(glm(data[,2] ~ data[, 1]))[numPoints()], 4))
+    hatVal(round(hatvalues(glm(data[, 2] ~ data[, 1]))[numPoints()], 4))
+    
+    ### Make Plots ----
+    currentPlot(
+      ggplot(
+        data = data,
+        mapping = aes(x = X, y = Y)
+      ) +
+        geom_point(color = psuPalette[4], size = 4) +
+        theme_bw() +
+        labs(title = "Current Scatterplot") +
+        xlab("X") +
+        ylab("Y") +
+        theme(
+          text = element_text(size = 18)
+        )
+    )
+    
+    ### Render new plot ----
+    output$plot1 <- renderPlot({
+      currentPlot()
+    })
+    
+    ### Update Buttons ----
+    updateButton(
+      session = session,
+      inputId = "submit",
+      disabled = FALSE
+    )
+    updateButton(
+      session = session,
+      inputId = "newplot",
+      disabled = TRUE
+    )
+    updateCheckboxInput(
+      session = session,
+      inputId = "showRegLine",
+      value = FALSE
+    )
+  }
 
   # Info message ----
   observeEvent(input$info, {
@@ -498,26 +553,6 @@ server <- function(input, output, clientData, session) {
       inputId = "pages",
       selected = "game"
     )
-  })
-
-  ## New plot button ----
-  observeEvent(input$newplot, {
-    updateButton(
-      session = session,
-      inputId = "submit",
-      disabled = FALSE
-    )
-    updateButton(
-      session = session,
-      inputId = "newplot",
-      disabled = TRUE
-    )
-
-    output$gradingIcon <- boastUtils::renderIcon()
-    output$feedback <- renderUI(NULL)
-    output$corrVal <- renderUI(NULL)
-
-    # Generation of data?
   })
 
   ## Submit Button ----
@@ -587,102 +622,16 @@ server <- function(input, output, clientData, session) {
     score(0)
     hearts(5)
 
-    output$gradingIcon <- boastUtils::renderIcon()
-    output$feedback <- renderUI(NULL)
-    output$corrVal <- renderUI(NULL)
-
-    ### Create data ----
-    data <- generateData(input$difficulty)
-    correlation(round(cor(data[, 1], data[, 2]), 2))
-    numPoints(nrow(data))
-    cooksD(round( cooks.distance(glm(data[,2] ~ data[, 1]))[numPoints()], 4))
-    hatVal(round(hatvalues(glm(data[, 2] ~ data[, 1]))[numPoints()], 4))
-
-    ### Make Plots ----
-    currentPlot(
-      ggplot(
-        data = data,
-        mapping = aes(x = X, y = Y)
-      ) +
-        geom_point(color = psuPalette[4], size = 4) +
-        theme_bw() +
-        labs(title = "Current Scatterplot") +
-        xlab("X") +
-        ylab("Y") +
-        theme(
-          text = element_text(size = 18)
-        )
-    )
-    output$plot1 <- renderPlot({
-      currentPlot()
-    })
-
-    ### Update Buttons ----
-    updateButton(
-      session = session,
-      inputId = "submit",
-      disabled = FALSE
-    )
-    updateButton(
-      session = session,
-      inputId = "newplot",
-      disabled = TRUE
-    )
-
-    updateCheckboxInput(
-      session = session,
-      inputId = "showRegLine",
-      value = FALSE
-    )
+    newPlot()
   })
 
-  ## Making plots?----
-  # define input$difficulty - when clicking - Generate Plot, GO!
+  ## Making plots? ----
   observeEvent(input$newplot || input$start, {
-
-    ### Create data ----
-    data <- generateData(input$difficulty)
-    correlation(round(cor(data[, 1], data[, 2]), 2))
-    numPoints(nrow(data))
-    cooksD(round( cooks.distance(glm(data[,2] ~ data[, 1]))[numPoints()], 4))
-    hatVal(round(hatvalues(glm(data[, 2] ~ data[, 1]))[numPoints()], 4))
-
-    ### Make Plots ----
-    currentPlot(
-      ggplot(
-        data = data,
-        mapping = aes(x = X, y = Y)
-      ) +
-        geom_point(color = psuPalette[4], size = 4) +
-        theme_bw() +
-        labs(title = "Current Scatterplot") +
-        xlab("X") +
-        ylab("Y") +
-        theme(
-          text = element_text(size = 18)
-        )
-    )
-    output$plot1 <- renderPlot({
-      currentPlot()
-    })
-
-    ### Update Buttons ----
-    updateButton(
-      session = session,
-      inputId = "submit",
-      disabled = FALSE
-    )
-    updateButton(
-      session = session,
-      inputId = "newplot",
-      disabled = TRUE
-    )
-
-    updateCheckboxInput(
-      session = session,
-      inputId = "showRegLine",
-      value = FALSE
-    )
+    newPlot()
+  })
+  
+  observeEvent(input$difficulty, {
+    newPlot()
   })
 
   ## Add linear regression line ----
