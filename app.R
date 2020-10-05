@@ -89,7 +89,7 @@ gradeEstimate <- function(user, corr) {
       output$heartChange <- -1
       output$scoreChange <- -5
       output$icon <- "incorrect"
-      output$message <- "You're guess is too far away."
+      output$message <- "Your guess is too far away."
     }
   } else if (0.7 <= abs(corr) && abs(corr) < 0.9) {
     if (user * corr < 0) {
@@ -116,7 +116,7 @@ gradeEstimate <- function(user, corr) {
       output$heartChange <- -1
       output$scoreChange <- -5
       output$icon <- "incorrect"
-      output$message <- "You're guess is too far away."
+      output$message <- "Your guess is too far away."
     }
   } else if (0.45 <= abs(corr) && abs(corr) < 0.7) {
     if (user * corr < 0) {
@@ -138,7 +138,7 @@ gradeEstimate <- function(user, corr) {
       output$heartChange <- -1
       output$scoreChange <- -5
       output$icon <- "incorrect"
-      output$message <- "You're guess is too far away."
+      output$message <- "Your guess is too far away."
     }
   } else { # -0.45 < corr < 0.45
     if (user * corr < 0) {
@@ -160,7 +160,7 @@ gradeEstimate <- function(user, corr) {
       output$heartChange <- -1
       output$scoreChange <- -5
       output$icon <- "incorrect"
-      output$message <- "You're guess is too far away."
+      output$message <- "Your guess is too far away."
     }
   }
   return(output)
@@ -550,17 +550,20 @@ server <- function(input, output, clientData, session) {
       object = "shiny-tab-game",
       description = "Find the appropriate correlation",
       interactionType = "numeric",
-      response = jsonlite::toJSON(list(
-        answered = input$slider,
-        target = correlation(),
-        numPoints = numPoints(), # Bob, check this
-        cooksD = cooksD(), # and this
-        hatVal = hatVal(), # and this
-        delta = (input$slider - correlation()),
-        difficulty = input$difficulty,
-        feedback = results$message
-      ), auto_unbox = TRUE),
-      success = ifelse(results$scoreChange > 0, TRUE, FALSE)
+      response = input$slider,
+      success = ifelse(results$scoreChange > 0, TRUE, FALSE),
+      extensions = list(
+        ref = "https://educationshinyappteam.github.io/BOAST/xapi/result/extensions/context",
+        value = jsonlite::toJSON(list(
+          target = correlation(),
+          numPoints = numPoints(),
+          cooksD = cooksD(),
+          hatVal = hatVal(),
+          delta = (input$slider - correlation()),
+          difficulty = input$difficulty,
+          feedback = results$message
+        ), auto_unbox = TRUE)
+      )
     )
 
     boastUtils::storeStatement(session, stmt)
