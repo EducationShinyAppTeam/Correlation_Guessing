@@ -196,6 +196,12 @@ ui <- list(
       ),
       tags$li(
         class = "dropdown",
+        tags$a(target = "_blank", icon("comments"),
+               href = "https://pennstate.qualtrics.com/jfe/form/SV_7TLIkFtJEJ7fEPz?appName=Correlation_Guessing"
+        )
+      ),
+      tags$li(
+        class = "dropdown",
         tags$a(
           href = "https://shinyapps.science.psu.edu/",
           icon("home", lib = "font-awesome")
@@ -206,15 +212,10 @@ ui <- list(
     dashboardSidebar(
       width = 250,
       sidebarMenu(
-        id = "tabs",
-        menuItem("Overview",
-          tabName = "overview",
-          icon = icon("tachometer-alt")
-        ),
+        id = "pages",
+        menuItem("Overview", tabName = "overview", icon = icon("tachometer-alt")),
         menuItem("Game", tabName = "game", icon = icon("gamepad")),
-        menuItem("References",
-          tabName = "References",
-          icon = icon("leanpub")
+        menuItem("References", tabName = "References", icon = icon("leanpub")
         )
       ),
       tags$div(
@@ -491,7 +492,7 @@ server <- function(input, output, clientData, session) {
   observeEvent(input$start, {
     updateTabItems(
       session = session,
-      inputId = "tabs",
+      inputId = "pages",
       selected = "game"
     )
   })
