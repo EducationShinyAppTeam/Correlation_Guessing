@@ -276,7 +276,7 @@ ui <- list(
             br(),
             br(),
             br(),
-            div(class = "updated", "Last Update: 9/15/2020 by NJH.")
+            div(class = "updated", "Last Update: 10/5/2020 by NJH.")
           )
         ),
         ## Second tab - Game ----
@@ -301,7 +301,7 @@ ui <- list(
                   ),
                   # checkbox for regression line
                   checkboxInput(
-                    inputId = "options",
+                    inputId = "showRegLine",
                     label = "Show regression line"
                   ),
                   br(),
@@ -469,6 +469,9 @@ server <- function(input, output, clientData, session) {
   hearts <- reactiveVal(5)
   score <- reactiveVal(0)
   correlation <- reactiveVal(0)
+  numPoints <- reactiveVal(0)
+  cooksD <- reactiveVal(0)
+  hatVal <- reactiveVal(0)
   tracking <- reactiveValues()
   tracking$DT <- data.frame(
     userGuess = numeric(),
@@ -550,6 +553,9 @@ server <- function(input, output, clientData, session) {
       response = jsonlite::toJSON(list(
         answered = input$slider,
         target = correlation(),
+        numPoints = numPoints(), # Bob, check this
+        cooksD = cooksD(), # and this
+        hatVal = hatVal(), # and this
         delta = (input$slider - correlation()),
         difficulty = input$difficulty,
         feedback = results$message
@@ -585,6 +591,9 @@ server <- function(input, output, clientData, session) {
     ### Create data ----
     data <- generateData(input$difficulty)
     correlation(round(cor(data[, 1], data[, 2]), 2))
+    numPoints(nrow(data))
+    cooksD(round( cooks.distance(glm(data[,2] ~ data[, 1]))[numPoints()], 4))
+    hatVal(round(hatvalues(glm(data[, 2] ~ data[, 1]))[numPoints()], 4))
 
     ### Make Plots ----
     currentPlot(
@@ -619,7 +628,7 @@ server <- function(input, output, clientData, session) {
 
     updateCheckboxInput(
       session = session,
-      inputId = "options",
+      inputId = "showRegLine",
       value = FALSE
     )
   })
@@ -631,6 +640,9 @@ server <- function(input, output, clientData, session) {
     ### Create data ----
     data <- generateData(input$difficulty)
     correlation(round(cor(data[, 1], data[, 2]), 2))
+    numPoints(nrow(data))
+    cooksD(round( cooks.distance(glm(data[,2] ~ data[, 1]))[numPoints()], 4))
+    hatVal(round(hatvalues(glm(data[, 2] ~ data[, 1]))[numPoints()], 4))
 
     ### Make Plots ----
     currentPlot(
@@ -665,14 +677,14 @@ server <- function(input, output, clientData, session) {
 
     updateCheckboxInput(
       session = session,
-      inputId = "options",
+      inputId = "showRegLine",
       value = FALSE
     )
   })
 
   ## Add linear regression line ----
-  observeEvent(input$options, {
-    if (input$options) {
+  observeEvent(input$showRegLine, {
+    if (input$showRegLine) {
       output$plot1 <- renderPlot({
         currentPlot() +
           geom_smooth(
