@@ -89,7 +89,7 @@ gradeEstimate <- function(user, corr) {
       output$heartChange <- -1
       output$scoreChange <- -5
       output$icon <- "incorrect"
-      output$message <- "You're guess is too far away."
+      output$message <- "Your guess is too far away."
     }
   } else if (0.7 <= abs(corr) && abs(corr) < 0.9) {
     if (user * corr < 0) {
@@ -116,7 +116,7 @@ gradeEstimate <- function(user, corr) {
       output$heartChange <- -1
       output$scoreChange <- -5
       output$icon <- "incorrect"
-      output$message <- "You're guess is too far away."
+      output$message <- "Your guess is too far away."
     }
   } else if (0.45 <= abs(corr) && abs(corr) < 0.7) {
     if (user * corr < 0) {
@@ -138,7 +138,7 @@ gradeEstimate <- function(user, corr) {
       output$heartChange <- -1
       output$scoreChange <- -5
       output$icon <- "incorrect"
-      output$message <- "You're guess is too far away."
+      output$message <- "Your guess is too far away."
     }
   } else { # -0.45 < corr < 0.45
     if (user * corr < 0) {
@@ -160,7 +160,7 @@ gradeEstimate <- function(user, corr) {
       output$heartChange <- -1
       output$scoreChange <- -5
       output$icon <- "incorrect"
-      output$message <- "You're guess is too far away."
+      output$message <- "Your guess is too far away."
     }
   }
   return(output)
@@ -196,6 +196,12 @@ ui <- list(
       ),
       tags$li(
         class = "dropdown",
+        tags$a(target = "_blank", icon("comments"),
+               href = "https://pennstate.qualtrics.com/jfe/form/SV_7TLIkFtJEJ7fEPz?appName=Correlation_Guessing"
+        )
+      ),
+      tags$li(
+        class = "dropdown",
         tags$a(
           href = "https://shinyapps.science.psu.edu/",
           icon("home", lib = "font-awesome")
@@ -206,7 +212,7 @@ ui <- list(
     dashboardSidebar(
       width = 250,
       sidebarMenu(
-        id = "tabs",
+        id = "pages",
         menuItem("Overview",
           tabName = "overview",
           icon = icon("tachometer-alt")
@@ -230,7 +236,7 @@ ui <- list(
           tabName = "overview",
           h1("Correlation Guessing"),
           # Title
-          p("This App is designed to help you better understand the
+          p("This app is designed to help you better understand the
             numerical value of correlations for scatterplots with
             or without outliers."),
           br(),
@@ -491,7 +497,7 @@ server <- function(input, output, clientData, session) {
   observeEvent(input$start, {
     updateTabItems(
       session = session,
-      inputId = "tabs",
+      inputId = "pages",
       selected = "game"
     )
   })
