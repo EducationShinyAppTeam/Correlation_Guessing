@@ -231,7 +231,7 @@ ui <- list(
           tabName = "overview",
           h1("Correlation Guessing"),
           # Title
-          p("This App is designed to help you better understand the
+          p("This app is designed to help you better understand the
             numerical value of correlations for scatterplots with
             or without outliers."),
           br(),
