@@ -213,14 +213,9 @@ ui <- list(
       width = 250,
       sidebarMenu(
         id = "pages",
-        menuItem("Overview",
-          tabName = "overview",
-          icon = icon("tachometer-alt")
-        ),
+        menuItem("Overview", tabName = "overview", icon = icon("tachometer-alt")),
         menuItem("Game", tabName = "game", icon = icon("gamepad")),
-        menuItem("References",
-          tabName = "References",
-          icon = icon("leanpub")
+        menuItem("References", tabName = "References", icon = icon("leanpub")
         )
       ),
       tags$div(
@@ -281,7 +276,7 @@ ui <- list(
             br(),
             br(),
             br(),
-            div(class = "updated", "Last Update: 9/15/2020 by NJH.")
+            div(class = "updated", "Last Update: 10/5/2020 by NJH.")
           )
         ),
         ## Second tab - Game ----
@@ -306,7 +301,7 @@ ui <- list(
                   ),
                   # checkbox for regression line
                   checkboxInput(
-                    inputId = "options",
+                    inputId = "showRegLine",
                     label = "Show regression line"
                   ),
                   br(),
@@ -469,18 +464,76 @@ ui <- list(
 )
 
 # Define the Server ----
-server <- function(input, output, clientData, session) {
+server <- function(input, output, session) {
   ## Reactive Values ----
   hearts <- reactiveVal(5)
   score <- reactiveVal(0)
   correlation <- reactiveVal(0)
+  numPoints <- reactiveVal(0)
+  cooksD <- reactiveVal(0)
+  hatVal <- reactiveVal(0)
   tracking <- reactiveValues()
   tracking$DT <- data.frame(
     userGuess = numeric(),
     actualValue = numeric(),
     difficulty = character()
   )
+  
   currentPlot <- reactiveVal()
+  
+  ## Render a new plot ----
+  newPlot <- function() {
+    
+    ### Reset output ----
+    output$gradingIcon <- boastUtils::renderIcon()
+    output$feedback <- renderUI(NULL)
+    output$corrVal <- renderUI(NULL)
+    
+    ### Create data ----
+    data <- generateData(input$difficulty)
+    correlation(round(cor(data[, 1], data[, 2]), 2))
+    numPoints(nrow(data))
+    cooksD(round( cooks.distance(glm(data[,2] ~ data[, 1]))[numPoints()], 4))
+    hatVal(round(hatvalues(glm(data[, 2] ~ data[, 1]))[numPoints()], 4))
+    
+    ### Make Plots ----
+    currentPlot(
+      ggplot(
+        data = data,
+        mapping = aes(x = X, y = Y)
+      ) +
+        geom_point(color = psuPalette[4], size = 4) +
+        theme_bw() +
+        labs(title = "Current Scatterplot") +
+        xlab("X") +
+        ylab("Y") +
+        theme(
+          text = element_text(size = 18)
+        )
+    )
+    
+    ### Render new plot ----
+    output$plot1 <- renderPlot({
+      currentPlot()
+    })
+    
+    ### Update Buttons ----
+    updateButton(
+      session = session,
+      inputId = "submit",
+      disabled = FALSE
+    )
+    updateButton(
+      session = session,
+      inputId = "newplot",
+      disabled = TRUE
+    )
+    updateCheckboxInput(
+      session = session,
+      inputId = "showRegLine",
+      value = FALSE
+    )
+  }
 
   # Info message ----
   observeEvent(input$info, {
@@ -500,26 +553,6 @@ server <- function(input, output, clientData, session) {
       inputId = "pages",
       selected = "game"
     )
-  })
-
-  ## New plot button ----
-  observeEvent(input$newplot, {
-    updateButton(
-      session = session,
-      inputId = "submit",
-      disabled = FALSE
-    )
-    updateButton(
-      session = session,
-      inputId = "newplot",
-      disabled = TRUE
-    )
-
-    output$gradingIcon <- boastUtils::renderIcon()
-    output$feedback <- renderUI(NULL)
-    output$corrVal <- renderUI(NULL)
-
-    # Generation of data?
   })
 
   ## Submit Button ----
@@ -552,14 +585,20 @@ server <- function(input, output, clientData, session) {
       object = "shiny-tab-game",
       description = "Find the appropriate correlation",
       interactionType = "numeric",
-      response = jsonlite::toJSON(list(
-        answered = input$slider,
-        target = correlation(),
-        delta = (input$slider - correlation()),
-        difficulty = input$difficulty,
-        feedback = results$message
-      ), auto_unbox = TRUE),
-      success = ifelse(results$scoreChange > 0, TRUE, FALSE)
+      response = input$slider,
+      success = ifelse(results$scoreChange > 0, TRUE, FALSE),
+      extensions = list(
+        ref = "https://educationshinyappteam.github.io/BOAST/xapi/result/extensions/context",
+        value = jsonlite::toJSON(list(
+          target = correlation(),
+          numPoints = numPoints(),
+          cooksD = cooksD(),
+          hatVal = hatVal(),
+          delta = (input$slider - correlation()),
+          difficulty = input$difficulty,
+          feedback = results$message
+        ), auto_unbox = TRUE)
+      )
     )
 
     boastUtils::storeStatement(session, stmt)
@@ -583,101 +622,21 @@ server <- function(input, output, clientData, session) {
     score(0)
     hearts(5)
 
-    output$gradingIcon <- boastUtils::renderIcon()
-    output$feedback <- renderUI(NULL)
-    output$corrVal <- renderUI(NULL)
-
-    ### Create data ----
-    data <- generateData(input$difficulty)
-    correlation(round(cor(data[, 1], data[, 2]), 2))
-
-    ### Make Plots ----
-    currentPlot(
-      ggplot(
-        data = data,
-        mapping = aes(x = X, y = Y)
-      ) +
-        geom_point(color = psuPalette[4], size = 4) +
-        theme_bw() +
-        labs(title = "Current Scatterplot") +
-        xlab("X") +
-        ylab("Y") +
-        theme(
-          text = element_text(size = 18)
-        )
-    )
-    output$plot1 <- renderPlot({
-      currentPlot()
-    })
-
-    ### Update Buttons ----
-    updateButton(
-      session = session,
-      inputId = "submit",
-      disabled = FALSE
-    )
-    updateButton(
-      session = session,
-      inputId = "newplot",
-      disabled = TRUE
-    )
-
-    updateCheckboxInput(
-      session = session,
-      inputId = "options",
-      value = FALSE
-    )
+    newPlot()
   })
 
-  ## Making plots?----
-  # define input$difficulty - when clicking - Generate Plot, GO!
+  ## Making plots? ----
   observeEvent(input$newplot || input$start, {
-
-    ### Create data ----
-    data <- generateData(input$difficulty)
-    correlation(round(cor(data[, 1], data[, 2]), 2))
-
-    ### Make Plots ----
-    currentPlot(
-      ggplot(
-        data = data,
-        mapping = aes(x = X, y = Y)
-      ) +
-        geom_point(color = psuPalette[4], size = 4) +
-        theme_bw() +
-        labs(title = "Current Scatterplot") +
-        xlab("X") +
-        ylab("Y") +
-        theme(
-          text = element_text(size = 18)
-        )
-    )
-    output$plot1 <- renderPlot({
-      currentPlot()
-    })
-
-    ### Update Buttons ----
-    updateButton(
-      session = session,
-      inputId = "submit",
-      disabled = FALSE
-    )
-    updateButton(
-      session = session,
-      inputId = "newplot",
-      disabled = TRUE
-    )
-
-    updateCheckboxInput(
-      session = session,
-      inputId = "options",
-      value = FALSE
-    )
+    newPlot()
+  })
+  
+  observeEvent(input$difficulty, {
+    newPlot()
   })
 
   ## Add linear regression line ----
-  observeEvent(input$options, {
-    if (input$options) {
+  observeEvent(input$showRegLine, {
+    if (input$showRegLine) {
       output$plot1 <- renderPlot({
         currentPlot() +
           geom_smooth(
