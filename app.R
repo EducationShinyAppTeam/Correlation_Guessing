@@ -140,7 +140,7 @@ gradeEstimate <- function(user, corr) {
       output$icon <- "incorrect"
       output$message <- "Your guess is too far away."
     }
-  } else { # -0.45 < corr < 0.45
+  } else {# -0.45 < corr < 0.45
     if (user * corr < 0) {
       output$heartChange <- -1
       output$scoreChange <- -5
@@ -192,19 +192,17 @@ ui <- list(
       title = "Correlation Guessing",
       tags$li(
         class = "dropdown",
-        actionLink("info", icon("info", class = "myClass"))
+        actionLink("info", icon("info"))
       ),
       tags$li(
         class = "dropdown",
-        tags$a(target = "_blank", icon("comments"),
-               href = "https://pennstate.qualtrics.com/jfe/form/SV_7TLIkFtJEJ7fEPz?appName=Correlation_Guessing"
-        )
+        boastUtils::surveyLink(name = "Correlation_Guessing")
       ),
       tags$li(
         class = "dropdown",
         tags$a(
           href = "https://shinyapps.science.psu.edu/",
-          icon("home", lib = "font-awesome")
+          icon("home")
         )
       )
     ),
@@ -214,6 +212,7 @@ ui <- list(
       sidebarMenu(
         id = "pages",
         menuItem("Overview", tabName = "overview", icon = icon("tachometer-alt")),
+        menuItem("Prerequisites", tabName = "prerequisites", icon = icon("book")),
         menuItem("Game", tabName = "game", icon = icon("gamepad")),
         menuItem("References", tabName = "References", icon = icon("leanpub")
         )
@@ -279,7 +278,40 @@ ui <- list(
             div(class = "updated", "Last Update: 10/5/2020 by NJH.")
           )
         ),
-        ## Second tab - Game ----
+        
+        ## Second tab - Prerequisites ----
+        tabItem(
+          tabName = "prerequisites",
+          withMathJax(), 
+          h2("Prerequisites"),
+          p("In order to get most out of this app, please review the following:"),
+          tags$li("Correlation is a measure of the direction and strength of the 
+          relationship between two variables. In a sample, we use symbol \\(r\\) ;
+          in a poppulation, we use the Greek letter \\(\\rho\\)."), 
+          tags$li("\\(-1\\leq r\\leq1\\)"), 
+          tags$li("For a positive association, \\(r > 0\\), for a negative 
+                  association \\(r < 0\\); if there is no relationship, 
+                  \\(r = 0\\)."),
+          tags$li("The closer \\(r\\) is to \\(0\\) the weaker the relationship 
+                  and the closer to \\(+1\\) or \\(-1\\) the stronger the 
+                  relationship; the sign of the correlation provides direction only."
+          ), 
+          br(), 
+          br(), 
+          div(
+            style = "text-align: center;",
+            bsButton(
+              inputId = "ready",
+              label = "Ready!",
+              size = "large",
+              icon = icon("bolt")
+            )
+          )
+        ),
+        
+         
+      
+        ## Third tab - Game ----
         tabItem(
           tabName = "game",
           h2("Find the appropriate correlation"),
@@ -345,7 +377,7 @@ ui <- list(
                   "Move the slide bar on the left",
                   "to guess the correlation"
                 ),
-                place = "top",
+                placement = "top",
                 trigger = "hover"
               ),
               # Alt text
@@ -369,7 +401,7 @@ ui <- list(
                   "on the horizontal axis.",
                   "Red dots represents the difficulty level of Without Outliers,",
                   "Blue triangles represent the difficulty of With Outliers,",
-                  "and Purple Squares represent the Surprise Difficulty level",
+                  "and Purple squares represent the Surprise Difficulty level",
                   "where you might have Outliers."
                 ),
                 placement = "top",
@@ -551,9 +583,19 @@ server <- function(input, output, session) {
     updateTabItems(
       session = session,
       inputId = "pages",
-      selected = "game"
+      selected = "prerequisites"
     )
   })
+  
+  ## Ready Button ----
+  observeEvent(input$ready, {
+    updateTabItems(
+      session = session, 
+      inputId = "pages", 
+      selected = "game"
+    )
+  }
+  )
 
   ## Submit Button ----
   observeEvent(input$submit, {
@@ -767,13 +809,15 @@ server <- function(input, output, session) {
   })
 
   ## Reset Performance Button ----
-  observeEvent(input$resetPerf, {
-    tracking$DT <- data.frame(
-      userGuess = numeric(),
-      actualValue = numeric(),
-      difficulty = character()
-    )
-  })
+  observeEvent(input$resetPerf,
+               {
+                 tracking$DT <- data.frame(
+                   userGuess = numeric(),
+                   actualValue = numeric(),
+                   difficulty = character()
+                 )
+               }
+  )
 }
 
 
