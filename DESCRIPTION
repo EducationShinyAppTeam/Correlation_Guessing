@@ -1,0 +1,24 @@
+Title: Correlation Guessing
+ShortName: Correlation Guessing
+Date: 2021-07-15
+Lifecycle: experimental
+Authors@R: c(
+    person(given = "Sitong", family = "Liu", email = "", role = c("aut", "cre")),
+    person(given = "Zhiliang", family = "Zhang", email = "", role = c("aut")),
+    person(given = "Jiajun", family = "Gao", email = "", role = c("aut")), 
+    person(given = "Oluwafunke", family = "Alliyu", role = c("aut")), 
+    person(given = "Daehoon", family = "Gwak", role = c("aut")), 
+    person(given = "Qiaojuan", family = "Tu", role = c("aut")), 
+  )
+Chapter: Chapter 2
+Description: This app is focused on the topic of understanding the numerical value of correlations.
+LearningObjectives: c(
+    "The student will learn to understand the strength of the correlation by interacting with the guessing game.",
+    "The student will learn to understand outliers may affect the correlation substantially."
+  )
+DisplayMode: Normal
+URL: https://psu-eberly.shinyapps.io/Correlation_Guessing
+BugReports: https://github.com/EducationShinyAppTeam/Correlation_Guessing/issues
+License: CC-BY-NC-SA-4.0
+Tags: simulation
+Type: Shiny
