@@ -75,12 +75,12 @@ gradeEstimate <- function(user, corr) {
       output$scoreChange <- -5
       output$icon <- "incorrect"
       output$message <- "Check your sign."
-    } else if (diff < 0.05) {
+    } else if (diff < 0.1) {
       output$heartChange <- 1
       output$scoreChange <- 5
       output$icon <- "correct"
       output$message <- "Fantastic Job!"
-    } else if (diff < 0.15) {
+    } else if (diff < 0.2) {
       output$heartChange <- 0
       output$scoreChange <- 0
       output$icon <- "partial"
@@ -140,13 +140,34 @@ gradeEstimate <- function(user, corr) {
       output$icon <- "incorrect"
       output$message <- "Your guess is too far away."
     }
-  } else {# -0.45 < corr < 0.45
+  } else if (0.1 <= abs(corr) && abs(corr) < 0.45 ) {
     if (user * corr < 0) {
       output$heartChange <- -1
       output$scoreChange <- -5
       output$icon <- "incorrect"
       output$message <- "Check your sign."
     } else if (diff < 0.2) {
+      output$heartChange <- 0
+      output$scoreChange <- 5
+      output$icon <- "correct"
+      output$message <- "Well done!"
+    } else if (diff < 0.3) {
+      output$heartChange <- 0
+      output$scoreChange <- 0
+      output$icon <- "partial"
+      output$message <- "You're close but not quite there."
+    } else {
+      output$heartChange <- -1
+      output$scoreChange <- -5
+      output$icon <- "incorrect"
+      output$message <- "Your guess is too far away."
+    }
+  } else {
+    if (user * corr < 0) {
+      output$heartChange <- -1
+      output$scoreChange <- -5
+      output$message <- "You are close!"
+    } else if (diff < 0.1) {
       output$heartChange <- 0
       output$scoreChange <- 5
       output$icon <- "correct"
@@ -244,7 +265,7 @@ ui <- list(
             tags$li("Hit 'New Plot' to move to the next scatterplot."),
             tags$li("You have 5 hearts and once you lose all of your hearts,
                      the game is over. You can click the 'RESET' button
-                     to restart the game."),
+                     to restart the game.")
           ),
           p("You'll gain 5 points for each estimate deemed correct; you'll lose 5
             points for each estimate that is too far from the actual value. You
@@ -268,14 +289,12 @@ ui <- list(
           p(
             "This app was developed and coded by Sitong Liu.
             The app was futher updated by Zhiliang Zhang and Jiajun Gao
-            in June 2018 and Oluwafunke Alliyu in June 2019
-            and Daehoon Gwak in July 2020.
-            Special thanks to Caihui Xiao and Yuxin Zhang
-            for help on some programming issues.",
+            in June 2018, Oluwafunke Alliyu in June 2019, Daehoon Gwak in July 2020, 
+            and Qiaojuan Tu in July 2021.",
             br(),
             br(),
             br(),
-            div(class = "updated", "Last Update: 10/5/2020 by NJH.")
+            div(class = "updated", "Last Update: 08/01/2021 by Qiaojuan Tu.")
           )
         ),
         
@@ -286,15 +305,15 @@ ui <- list(
           h2("Prerequisites"),
           p("In order to get most out of this app, please review the following:"),
           tags$li("Correlation is a measure of the direction and strength of the 
-          relationship between two variables. In a sample, we use symbol \\(r\\) ;
-          in a poppulation, we use the Greek letter \\(\\rho\\)."), 
+          linear relationship between two variables. In a sample, we use symbol \\(r\\) ;
+          in a population, we use the Greek letter \\(\\rho\\)."), 
           tags$li("\\(-1\\leq r\\leq1\\)"), 
           tags$li("For a positive association, \\(r > 0\\), for a negative 
-                  association \\(r < 0\\); if there is no relationship, 
+                  association \\(r < 0\\); if there is no linear relationship, 
                   \\(r = 0\\)."),
-          tags$li("The closer \\(r\\) is to \\(0\\) the weaker the relationship 
+          tags$li("The closer \\(r\\) is to \\(0\\) the weaker the linear relationship 
                   and the closer to \\(+1\\) or \\(-1\\) the stronger the 
-                  relationship; the sign of the correlation provides direction only."
+                  linear relationship; the sign of the correlation provides direction only."
           ), 
           br(), 
           br(), 
@@ -302,9 +321,9 @@ ui <- list(
             style = "text-align: center;",
             bsButton(
               inputId = "ready",
-              label = "Ready!",
+              label = "GO!",
               size = "large",
-              icon = icon("bolt")
+              icon = icon("gamepad")
             )
           )
         ),
@@ -823,3 +842,4 @@ server <- function(input, output, session) {
 
 # Boast App Call ----
 boastUtils::boastApp(ui = ui, server = server)
+

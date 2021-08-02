@@ -1,6 +1,6 @@
 Title: Correlation Guessing
 ShortName: Correlation Guessing
-Date: 2021-07-15
+Date: 2021-08-01
 Lifecycle: experimental
 Authors@R: c(
     person(given = "Sitong", family = "Liu", email = "", role = c("aut", "cre")),
