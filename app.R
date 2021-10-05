@@ -5,52 +5,61 @@ library(shinydashboard)
 library(shinyWidgets)
 library(boastUtils)
 library(ggplot2)
+library(MASS)
 
 # Define global constants and functions ----
-generateData <- function(difficulty) {
-  if (as.numeric(difficulty) == 3) {
-    difficulty <- sample(1:2, 1)
-    numPoints <- ifelse(as.numeric(difficulty) == 1, 50, sample(5:25, 1))
-  } else {
-    numPoints <- ifelse(as.numeric(difficulty) == 1, 50, sample(5:25, 1))
+generateData <- function(difficulty){
+  ## Set number of points
+  numPoints <- sample(
+    x = seq.int(from = 5, to = 50, by = 5),
+    size = 1
+  )
+  
+  ## Randomly sample correlation
+  targetCorr <- sample(
+    x = seq(from = -1, to = 1, by = 0.01),
+    size = 1
+  )
+  
+  ## Generate covariance matrix
+  corrMat <- matrix(
+    data = c(1, targetCorr, targetCorr, 1),
+    nrow = 2,
+    ncol = 2,
+    byrow = TRUE
+  )
+  
+  stdDevX <- rnorm(n = 1, mean = 4, sd = 1)
+  stdDevY <- rgamma(n = 1, shape = 1) * stdDevX
+  
+  stdDevs <- matrix(
+    data = c(stdDevX, stdDevY), 
+    nrow = 1,
+    ncol = 2,
+    byrow = TRUE
+  )
+  
+  covMat <- sweep(x = sweep(corrMat, 1, stdDevs, "*"), 2, stdDevs, "*")
+  
+  ## Generate sample data
+  outData <- as.data.frame(
+    MASS::mvrnorm(
+      n = numPoints,
+      mu = rnorm(2, 0, 10),
+      Sigma = covMat
+    )
+  )
+  
+  colnames(outData) <- c("X", "Y")
+  
+  ## Adjust for outlier
+  if (difficulty == 2) {
+    outlierX <- mean(outData$X) + (-1)^(sample(1:2, 1)) * sample(2:6, 1) * sd(outData$X)
+    outlierY <- mean(outData$Y) + (-1)^(sample(1:2, 1)) * sample(2:6, 1) * sd(outData$Y)
+    outData[numPoints,] <- c(outlierX, outlierY)
   }
-  value <- rnorm(1, 0, 10)
-  valueB <- rnorm(1, 4, 1)
-  outlier <- as.numeric(sample(2:6, 1)) # create a random number
-  if (difficulty == 2) { # with outlier
-    choice <- sample(2, 1)
-    if (choice == 2) {
-      X1 <- rnorm(numPoints, value, valueB)
-      Y1 <- rnorm(numPoints, rnorm(1) * X1, rgamma(1, 1) * valueB)
-      mux <- mean(X1)
-      sdx <- sd(X1)
-      outx <- mux + (outlier * sdx) # function for outlier
-      X <- c(X1, outx)
-      muy <- mean(Y1)
-      sdy <- sd(Y1)
-      outy <- muy + (outlier * sdy)
-      Y <- c(Y1, outy)
-      return(data.frame(X, Y))
-    }
-    else {
-      X1 <- rnorm(numPoints, value, valueB)
-      Y1 <- rnorm(numPoints, rnorm(1) * X1, rgamma(1, 1) * valueB)
-      mux <- mean(X1)
-      sdx <- sd(X1)
-      outx <- mux - (outlier * sdx)
-      X <- c(X1, outx)
-      muy <- mean(Y1)
-      sdy <- sd(Y1)
-      outy <- muy - (outlier * sdy)
-      Y <- c(Y1, outy)
-      return(data.frame(X, Y))
-    }
-  }
-  else if (difficulty == 1) {
-    X <- rnorm(numPoints, value, valueB)
-    Y <- rnorm(numPoints, rnorm(1) * X, rgamma(1, 1) * valueB)
-    return(data.frame(X, Y))
-  }
+  
+  return(outData)
 }
 
 gradeEstimate <- function(user, corr) {
@@ -132,7 +141,7 @@ gradeEstimate <- function(user, corr) {
       output$icon <- "incorrect"
       output$message <- "Your guess is too far away."
     }
-  } else if (0.1 <= abs(corr) && abs(corr) < 0.45 ) {
+  } else if (0.1 < abs(corr) && abs(corr) < 0.45 ) {
     if (user * corr < 0) {
       output$heartChange <- -1
       output$scoreChange <- -5
@@ -156,8 +165,9 @@ gradeEstimate <- function(user, corr) {
     }
   } else {
     if (user * corr < 0) {
-      output$heartChange <- -1
-      output$scoreChange <- -5
+      output$heartChange <- 0
+      output$scoreChange <- 0
+      output$icon <- "partial"
       output$message <- "You are close!"
     } else if (diff < 0.1) {
       output$heartChange <- 0
@@ -242,7 +252,6 @@ ui <- list(
         tabItem(
           tabName = "overview",
           h1("Correlation Guessing"),
-          # Title
           p("This app is designed to help you better understand the
             numerical value of correlations for scatterplots with
             or without outliers."),
@@ -285,8 +294,12 @@ ui <- list(
             and Qiaojuan Tu in July 2021.",
             br(),
             br(),
+            "Cite this app as:",
             br(),
-            div(class = "updated", "Last Update: 08/01/2021 by Qiaojuan Tu.")
+            boastUtils::citeApp(),
+            br(),
+            br(),
+            div(class = "updated", "Last Update: 10/05/2021 by NJH.")
           )
         ),
 
@@ -296,16 +309,25 @@ ui <- list(
           withMathJax(),
           h2("Prerequisites"),
           p("In order to get most out of this app, please review the following:"),
-          tags$li("Correlation is a measure of the direction and strength of the
-          linear relationship between two variables. In a sample, we use symbol \\(r\\) ;
-          in a population, we use the Greek letter \\(\\rho\\)."),
-          tags$li("\\(-1\\leq r\\leq1\\)"),
-          tags$li("For a positive association, \\(r > 0\\), for a negative
-                  association \\(r < 0\\); if there is no linear relationship,
-                  \\(r = 0\\)."),
-          tags$li("The closer \\(r\\) is to \\(0\\) the weaker the linear relationship
-                  and the closer to \\(+1\\) or \\(-1\\) the stronger the
-                  linear relationship; the sign of the correlation provides direction only."
+          tags$ul(
+            tags$li("Correlation is a measure of the direction and strength of 
+                    the linear relationship between two variables. In a sample,
+                    we use the symbol \\(r\\), while for the population, we use
+                    the Greek letter \\(\\rho\\)."),
+            tags$li("Correlation can be no smaller than -1 and no larger than +1,
+                    \\(-1\\leq r\\leq1\\)."),
+            tags$li("When correlation is positive (\\(r > 0\\)), we say that
+                    there is a positive linear association between the variables.
+                    When the correlation is negative (\\(r < 0\\)), we say that
+                    there is a negative linear association between the variables."),
+            tags$li("When there is a correlation of 0 (\\(r = 0\\)), then there
+                    is no linear relationship between the variables; the best
+                    straight line model is horizontal."),
+            tags$li("The closer \\(r\\) is to 0, the weaker the linear relatinship;
+                    the closser \\(r\\) is to +1 or -1, the stronger the linear
+                    relationship."),
+            tags$li("The sign of \\(r\\) (positive or negative) indicates only
+                    the direction of the relationship.")
           ),
           br(),
           br(),
@@ -319,13 +341,10 @@ ui <- list(
             )
           )
         ),
-
-
-
         ## Third tab - Game ----
         tabItem(
           tabName = "game",
-          h2("Find the appropriate correlation"),
+          h2("Find the Appropriate Correlation"),
           fluidRow(
             column(
               # choose mode
@@ -459,13 +478,13 @@ ui <- list(
         tabItem(
           tabName = "References",
           h2("References"),
-          p( # shinyBS
+          p( 
             class = "hangingindent",
             "Bailey, E. (2015), shinyBS: Twitter bootstrap components for shiny,
              R package. Available from
             https://CRAN.R-project.org/package=shinyBS"
           ),
-          p( # Boast Utilities
+          p( 
             class = "hangingindent",
             "Carey, R. (2019), boastUtils: BOAST Utilities, R Package.
              Available from
@@ -477,24 +496,29 @@ ui <- list(
             Available from
             http://www.rossmanchance.com/applets/GuessCorrelation.html"
           ),
-          p( # shinydashboard
+          p( 
             class = "hangingindent",
             "Chang, W. and Borges Ribeio, B. (2018), shinydashboard: Create
             dashboards with 'Shiny', R Package. Available from
             https://CRAN.R-project.org/package=shinydashboard"
           ),
-          p( # shiny
+          p( 
             class = "hangingindent",
             "Chang, W., Cheng, J., Allaire, J., Xie, Y., and McPherson, J.
             (2019), shiny: Web application framework for R, R Package.
             Available from https://CRAN.R-project.org/package=shiny"
           ),
-          p( # shinyWidgets
+          p( 
             class = "hangingindent",
             "Perrier, V., Meyer, F., Granjon, D., Fellows, I., and Davis, W.
             (2020), shinyWidgets: Custom Inputs Widgets for Shiny, R package.
             Available from
             https://cran.r-project.org/web/packages/shinyWidgets/index.html"
+          ),
+          p(
+            class = "hangingindent",
+            "Venables, W. N., and Ripley, B. D. (2002) Modern Applied Statistics
+             with S. Fourth Edition. Springer, New York. [MASS R Package]."
           ),
           br(),
           br(),
@@ -534,10 +558,10 @@ server <- function(input, output, session) {
 
     ### Create data ----
     data <- generateData(input$difficulty)
-    correlation(round(cor(data[, 1], data[, 2]), 2))
+    correlation(round(cor(data$X, data$Y), 2))
     numPoints(nrow(data))
-    cooksD(round( cooks.distance(glm(data[,2] ~ data[, 1]))[numPoints()], 4))
-    hatVal(round(hatvalues(glm(data[, 2] ~ data[, 1]))[numPoints()], 4))
+    cooksD(round( cooks.distance(glm(data$Y ~ data$X))[numPoints()], 4))
+    hatVal(round(hatvalues(glm(data$Y ~ data$X))[numPoints()], 4))
 
     ### Make Plots ----
     currentPlot(
@@ -579,135 +603,150 @@ server <- function(input, output, session) {
   }
 
   # Info message ----
-  observeEvent(input$info, {
-    sendSweetAlert(
-      session = session,
-      title = "Instructions",
-      text = "Generate a new plot, use the slider to guess the correlation,
+  observeEvent(
+    eventExpr = input$info, 
+    handlerExpr = {
+      sendSweetAlert(
+        session = session,
+        title = "Instructions",
+        text = "Generate a new plot, use the slider to guess the correlation,
         repeat and track your performance in the bottom plot.",
-      type = "info"
-    )
-  })
+        type = "info"
+      )
+    })
 
   ## Start button ----
-  observeEvent(input$start, {
-    updateTabItems(
-      session = session,
-      inputId = "pages",
-      selected = "prerequisites"
-    )
-  })
+  observeEvent(
+    eventExpr = input$start, 
+    handlerExpr = {
+      updateTabItems(
+        session = session,
+        inputId = "pages",
+        selected = "prerequisites"
+      )
+    })
 
   ## Ready Button ----
-  observeEvent(input$ready, {
-    updateTabItems(
-      session = session,
-      inputId = "pages",
-      selected = "game"
-    )
-  }
+  observeEvent(
+    eventExpr = input$ready, 
+    handlerExpr = {
+      updateTabItems(
+        session = session,
+        inputId = "pages",
+        selected = "game"
+      )
+    }
   )
 
   ## Submit Button ----
-  observeEvent(input$submit, {
-    updateButton(
-      session = session,
-      inputId = "submit",
-      disabled = TRUE
-    )
-    updateButton(
-      session = session,
-      inputId = "newplot",
-      disabled = FALSE
-    )
-
-    ### Store new values ----
-    currentPoints <- data.frame(
-      userGuess = input$slider,
-      actualValue = correlation(),
-      difficulty = input$difficulty
-    )
-    tracking$DT <- rbind(tracking$DT, currentPoints)
-
-    results <- gradeEstimate(user = input$slider, corr = correlation())
-
-    ### Store xAPI statement ----
-    stmt <- boastUtils::generateStatement(
-      session,
-      verb = "answered",
-      object = "shiny-tab-game",
-      description = "Find the appropriate correlation",
-      interactionType = "numeric",
-      response = input$slider,
-      success = ifelse(results$scoreChange > 0, TRUE, FALSE),
-      extensions = list(
-        ref = "https://educationshinyappteam.github.io/BOAST/xapi/result/extensions/context",
-        value = jsonlite::toJSON(list(
-          target = correlation(),
-          numPoints = numPoints(),
-          cooksD = cooksD(),
-          hatVal = hatVal(),
-          delta = (input$slider - correlation()),
-          difficulty = input$difficulty,
-          feedback = results$message
-        ), auto_unbox = TRUE)
+  observeEvent(
+    eventExpr = input$submit, 
+    handlerExpr = {
+      updateButton(
+        session = session,
+        inputId = "submit",
+        disabled = TRUE
       )
-    )
-
-    boastUtils::storeStatement(session, stmt)
-
-    hearts(hearts() + results$heartChange)
-    score(score() + results$scoreChange)
-    output$gradingIcon <- boastUtils::renderIcon(results$icon)
-    output$feedback <- renderUI(results$message)
-    output$corrVal <- renderUI({
-      paste("True correlation:", correlation())
+      updateButton(
+        session = session,
+        inputId = "newplot",
+        disabled = FALSE
+      )
+      
+      ### Store new values ----
+      currentPoints <- data.frame(
+        userGuess = input$slider,
+        actualValue = correlation(),
+        difficulty = input$difficulty
+      )
+      tracking$DT <- rbind(tracking$DT, currentPoints)
+      
+      results <- gradeEstimate(user = input$slider, corr = correlation())
+      
+      ### Store xAPI statement ----
+      stmt <- boastUtils::generateStatement(
+        session,
+        verb = "answered",
+        object = "shiny-tab-game",
+        description = "Find the appropriate correlation",
+        interactionType = "numeric",
+        response = input$slider,
+        success = ifelse(results$scoreChange > 0, TRUE, FALSE),
+        extensions = list(
+          ref = "https://educationshinyappteam.github.io/BOAST/xapi/result/extensions/context",
+          value = jsonlite::toJSON(list(
+            target = correlation(),
+            numPoints = numPoints(),
+            cooksD = cooksD(),
+            hatVal = hatVal(),
+            delta = (input$slider - correlation()),
+            difficulty = input$difficulty,
+            feedback = results$message
+          ), auto_unbox = TRUE)
+        )
+      )
+      
+      boastUtils::storeStatement(session, stmt)
+      
+      hearts(hearts() + results$heartChange)
+      score(score() + results$scoreChange)
+      output$gradingIcon <- boastUtils::renderIcon(results$icon)
+      output$feedback <- renderUI(results$message)
+      output$corrVal <- renderUI({
+        paste("True correlation:", correlation())
+      })
+      
+      ##### The max heart is five
+      if (hearts() > 5) {
+        hearts(5)
+      }
     })
-
-    ##### The max heart is five
-    if (hearts() > 5) {
-      hearts(5)
-    }
-  })
-
+  
   ## Reset button ----
-  observeEvent(input$reset, {
-    score(0)
-    hearts(5)
-
-    newPlot()
-  })
-
+  observeEvent(
+    eventExpr = input$reset,
+    handlerExpr = {
+      score(0)
+      hearts(5)
+      
+      newPlot()
+    })
+  
   ## Making plots? ----
-  observeEvent(input$newplot || input$start, {
-    newPlot()
-  })
-
-  observeEvent(input$difficulty, {
-    newPlot()
-  })
-
+  observeEvent(input$newplot || input$start, 
+    handlerExpr = {
+      newPlot()
+    })
+  
+  observeEvent(
+    eventExpr = input$difficulty, 
+    handlerExpr = {
+      newPlot()
+    })
+  
   ## Add linear regression line ----
-  observeEvent(input$showRegLine, {
-    if (input$showRegLine) {
-      output$plot1 <- renderPlot({
-        currentPlot() +
-          geom_smooth(
-            method = "lm",
-            formula = y ~ x,
-            se = FALSE,
-            na.rm = TRUE,
-            color = "blue",
-            size = 2
-          )
-      })
-    } else {
-      output$plot1 <- renderPlot({
-        currentPlot()
-      })
-    }
-  })
-
+  observeEvent(
+    eventExpr = input$showRegLine, 
+    handlerExpr = {
+      if (input$showRegLine) {
+        output$plot1 <- renderPlot({
+          currentPlot() +
+            geom_smooth(
+              method = "lm",
+              formula = y ~ x,
+              se = FALSE,
+              na.rm = TRUE,
+              color = "blue",
+              size = 2
+            )
+        })
+      } else {
+        output$plot1 <- renderPlot({
+          currentPlot()
+        })
+      }
+    })
+  
   ## Performance Plot ----
   ## Track your performance and change the color of points for different level
   output$plot2 <- renderPlot({
@@ -756,13 +795,13 @@ server <- function(input, output, session) {
         )
     }
   })
-
+  
   ## Game Heart Display ----
   ### Score ----
   output$score <- renderText({
     paste("Score:", score())
   })
-
+  
   ### Remaining hearts ----
   output$heart <- renderUI({
     if (hearts() == 5) {
@@ -799,7 +838,7 @@ server <- function(input, output, session) {
       updateButton(session, "submit", disabled = TRUE)
       updateButton(session, "newplot", disabled = TRUE)
       msg <- "You have no hearts left; game over"
-
+      
       ### Store xAPI statement ----
       stmt <- boastUtils::generateStatement(
         session,
@@ -809,7 +848,7 @@ server <- function(input, output, session) {
         response = msg,
         success = FALSE
       )
-
+      
       boastUtils::storeStatement(session, stmt)
       img(
         src = "gameisover.gif",
@@ -818,16 +857,17 @@ server <- function(input, output, session) {
       )
     }
   })
-
+  
   ## Reset Performance Button ----
-  observeEvent(input$resetPerf,
-               {
-                 tracking$DT <- data.frame(
-                   userGuess = numeric(),
-                   actualValue = numeric(),
-                   difficulty = character()
-                 )
-               }
+  observeEvent(
+    eventExpr = input$resetPerf,
+    handlerExpr = {
+      tracking$DT <- data.frame(
+        userGuess = numeric(),
+        actualValue = numeric(),
+        difficulty = character()
+      )
+    }
   )
 }
 

@@ -8,7 +8,9 @@ Authors@R: c(
     person(given = "Jiajun", family = "Gao", email = "", role = c("aut")), 
     person(given = "Oluwafunke", family = "Alliyu", role = c("aut")), 
     person(given = "Daehoon", family = "Gwak", role = c("aut")), 
-    person(given = "Qiaojuan", family = "Tu", role = c("aut")), 
+    person(given = "Qiaojuan", family = "Tu", role = c("aut")),
+    person(given = "Dennis", family = "Pearl", role = c("aut")),
+    person(given = "Neil", family = "Hatfield", role = c("aut"))
   )
 Chapter: Chapter 2
 Description: This app is focused on the topic of understanding the numerical value of correlations.
