@@ -6,14 +6,6 @@ library(shinyWidgets)
 library(boastUtils)
 library(ggplot2)
 
-## App Meta Data----------------------------------------------------------------
-APP_TITLE <<- "Correlation Guessing"
-APP_DESCP <<- paste(
-  "This app helps a student better understand the numerical value of correlations",
-  "for scatterplots with or without outliers."
-)
-## End App Meta Data------------------------------------------------------------
-
 # Define global constants and functions ----
 generateData <- function(difficulty) {
   if (as.numeric(difficulty) == 3) {
@@ -289,7 +281,7 @@ ui <- list(
           p(
             "This app was developed and coded by Sitong Liu.
             The app was futher updated by Zhiliang Zhang and Jiajun Gao
-            in June 2018, Oluwafunke Alliyu in June 2019, Daehoon Gwak in July 2020, 
+            in June 2018, Oluwafunke Alliyu in June 2019, Daehoon Gwak in July 2020,
             and Qiaojuan Tu in July 2021.",
             br(),
             br(),
@@ -297,26 +289,26 @@ ui <- list(
             div(class = "updated", "Last Update: 08/01/2021 by Qiaojuan Tu.")
           )
         ),
-        
+
         ## Second tab - Prerequisites ----
         tabItem(
           tabName = "prerequisites",
-          withMathJax(), 
+          withMathJax(),
           h2("Prerequisites"),
           p("In order to get most out of this app, please review the following:"),
-          tags$li("Correlation is a measure of the direction and strength of the 
+          tags$li("Correlation is a measure of the direction and strength of the
           linear relationship between two variables. In a sample, we use symbol \\(r\\) ;
-          in a population, we use the Greek letter \\(\\rho\\)."), 
-          tags$li("\\(-1\\leq r\\leq1\\)"), 
-          tags$li("For a positive association, \\(r > 0\\), for a negative 
-                  association \\(r < 0\\); if there is no linear relationship, 
+          in a population, we use the Greek letter \\(\\rho\\)."),
+          tags$li("\\(-1\\leq r\\leq1\\)"),
+          tags$li("For a positive association, \\(r > 0\\), for a negative
+                  association \\(r < 0\\); if there is no linear relationship,
                   \\(r = 0\\)."),
-          tags$li("The closer \\(r\\) is to \\(0\\) the weaker the linear relationship 
-                  and the closer to \\(+1\\) or \\(-1\\) the stronger the 
+          tags$li("The closer \\(r\\) is to \\(0\\) the weaker the linear relationship
+                  and the closer to \\(+1\\) or \\(-1\\) the stronger the
                   linear relationship; the sign of the correlation provides direction only."
-          ), 
-          br(), 
-          br(), 
+          ),
+          br(),
+          br(),
           div(
             style = "text-align: center;",
             bsButton(
@@ -327,9 +319,9 @@ ui <- list(
             )
           )
         ),
-        
-         
-      
+
+
+
         ## Third tab - Game ----
         tabItem(
           tabName = "game",
@@ -529,24 +521,24 @@ server <- function(input, output, session) {
     actualValue = numeric(),
     difficulty = character()
   )
-  
+
   currentPlot <- reactiveVal()
-  
+
   ## Render a new plot ----
   newPlot <- function() {
-    
+
     ### Reset output ----
     output$gradingIcon <- boastUtils::renderIcon()
     output$feedback <- renderUI(NULL)
     output$corrVal <- renderUI(NULL)
-    
+
     ### Create data ----
     data <- generateData(input$difficulty)
     correlation(round(cor(data[, 1], data[, 2]), 2))
     numPoints(nrow(data))
     cooksD(round( cooks.distance(glm(data[,2] ~ data[, 1]))[numPoints()], 4))
     hatVal(round(hatvalues(glm(data[, 2] ~ data[, 1]))[numPoints()], 4))
-    
+
     ### Make Plots ----
     currentPlot(
       ggplot(
@@ -562,12 +554,12 @@ server <- function(input, output, session) {
           text = element_text(size = 18)
         )
     )
-    
+
     ### Render new plot ----
     output$plot1 <- renderPlot({
       currentPlot()
     })
-    
+
     ### Update Buttons ----
     updateButton(
       session = session,
@@ -605,12 +597,12 @@ server <- function(input, output, session) {
       selected = "prerequisites"
     )
   })
-  
+
   ## Ready Button ----
   observeEvent(input$ready, {
     updateTabItems(
-      session = session, 
-      inputId = "pages", 
+      session = session,
+      inputId = "pages",
       selected = "game"
     )
   }
@@ -690,7 +682,7 @@ server <- function(input, output, session) {
   observeEvent(input$newplot || input$start, {
     newPlot()
   })
-  
+
   observeEvent(input$difficulty, {
     newPlot()
   })
