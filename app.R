@@ -6,9 +6,15 @@ library(shinyWidgets)
 library(boastUtils)
 library(ggplot2)
 library(MASS)
+library(DT)
 
 # Define global constants and functions ----
 generateData <- function(difficulty){
+  ## Adjust difficulty for the suprise me
+  if (difficulty == 3) {
+    difficulty <- sample(x = 1:2, 1)
+  }
+  
   ## Set number of points
   numPoints <- sample(
     x = seq.int(from = 5, to = 50, by = 5),
@@ -59,7 +65,12 @@ generateData <- function(difficulty){
     outData[numPoints,] <- c(outlierX, outlierY)
   }
   
-  return(outData)
+  return(
+    list(
+      data = outData,
+      outlier = ifelse(difficulty == 1, 0, 1)
+    )
+  )
 }
 
 gradeEstimate <- function(user, corr) {
@@ -420,7 +431,27 @@ ui <- list(
                        value of`)
                        })"
                 )
-              ),
+              )
+            ),
+            # score UI
+            column(
+              width = 3,
+              wellPanel(
+                textOutput("score"),
+                uiOutput("heart"),
+                bsButton(
+                  inputId = "reset",
+                  label = "Reset",
+                  style = "danger",
+                  size = "large"
+                )
+              )
+            )
+          ),
+          fluidRow(
+            column(
+              width = 6,
+              offset = 3,
               # Track performance plot
               plotOutput(outputId = "plot2", width = "100%"),
               bsPopover(
@@ -449,19 +480,10 @@ ui <- list(
                 )
               )
             ),
-            # score UI
             column(
               width = 3,
-              wellPanel(
-                textOutput("score"),
-                uiOutput("heart"),
-                bsButton(
-                  inputId = "reset",
-                  label = "Reset",
-                  style = "danger",
-                  size = "large"
-                )
-              )
+              br(),
+              DT::DTOutput(outputId = "counterTable")
             )
           ),
           div(
@@ -520,6 +542,12 @@ ui <- list(
             "Venables, W. N., and Ripley, B. D. (2002) Modern Applied Statistics
              with S. Fourth Edition. Springer, New York. [MASS R Package]."
           ),
+          p(
+            class = "hangingindent",
+            "Xie, Y., Cheng, J., and Tan, X. (2021). DT: A wrapper of the
+            JavaScript library 'DataTables', R package. Available from 
+            https://CRAN.R-project.org/package=DT"
+          ),
           br(),
           br(),
           br(),
@@ -539,11 +567,17 @@ server <- function(input, output, session) {
   numPoints <- reactiveVal(0)
   cooksD <- reactiveVal(0)
   hatVal <- reactiveVal(0)
+  outlierCheck <- reactiveVal(0)
   tracking <- reactiveValues()
   tracking$DT <- data.frame(
     userGuess = numeric(),
     actualValue = numeric(),
     difficulty = character()
+  )
+  typeCounts <- reactiveValues(
+    without = 0,
+    with = 0,
+    surprise = 0
   )
 
   currentPlot <- reactiveVal()
@@ -557,10 +591,12 @@ server <- function(input, output, session) {
     output$corrVal <- renderUI(NULL)
 
     ### Create data ----
-    data <- generateData(input$difficulty)
+    currentData <- generateData(input$difficulty)
+    data <- currentData$data
+    outlierCheck(currentData$outlier)
     correlation(round(cor(data$X, data$Y), 2))
     numPoints(nrow(data))
-    cooksD(round( cooks.distance(glm(data$Y ~ data$X))[numPoints()], 4))
+    cooksD(round(cooks.distance(glm(data$Y ~ data$X))[numPoints()], 4))
     hatVal(round(hatvalues(glm(data$Y ~ data$X))[numPoints()], 4))
 
     ### Make Plots ----
@@ -681,6 +717,7 @@ server <- function(input, output, session) {
             hatVal = hatVal(),
             delta = (input$slider - correlation()),
             difficulty = input$difficulty,
+            outlier = outlierCheck(),
             feedback = results$message
           ), auto_unbox = TRUE)
         )
@@ -695,6 +732,15 @@ server <- function(input, output, session) {
       output$corrVal <- renderUI({
         paste("True correlation:", correlation())
       })
+      
+      ##### Update Graph Counter
+      if (input$difficulty == 1) {
+        typeCounts$without <- typeCounts$without + 1
+      } else if (input$difficulty == 2) {
+        typeCounts$with <- typeCounts$with + 1
+      } else {
+        typeCounts$surprise <- typeCounts$surprise + 1
+      }
       
       ##### The max heart is five
       if (hearts() > 5) {
@@ -796,6 +842,31 @@ server <- function(input, output, session) {
     }
   })
   
+  ## Graph Counter Display ----
+  output$counterTable <- DT::renderDataTable(
+    expr = {
+      data.frame(
+        count = c(typeCounts$without, typeCounts$with, typeCounts$surprise),
+        row.names = c("Without Outliers", "With Outliers", "Surprise Me")
+      )
+    },
+    caption = "Running Count of Graphs by Difficulty",
+    style = "bootstrap4",
+    rownames = TRUE,
+    options = list(
+      responsive = TRUE,
+      scrollX = TRUE,
+      ordering = FALSE,
+      paging = FALSE,
+      lengthChange = FALSE,
+      searching = FALSE,
+      info = FALSE,
+      columnDefs = list(
+        list(className = 'dt-center', targets = 1)
+      )
+    )
+  )
+  
   ## Game Heart Display ----
   ### Score ----
   output$score <- renderText({
@@ -867,6 +938,9 @@ server <- function(input, output, session) {
         actualValue = numeric(),
         difficulty = character()
       )
+      typeCounts$without <- 0
+      typeCounts$with <- 0
+      typeCounts$surprise <- 0
     }
   )
 }
